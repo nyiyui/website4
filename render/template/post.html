@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.Title}}</title>
-    {{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
-    {{if .Authors}}<meta name="authors" content="{{.Authors}}">{{end}}
-    {{if .Keywords}}<meta name="keywords" content="{{.Keywords}}">{{end}}
-    <style>
-      body {
-        max-width: 40em;
-        margin: 0 auto;
-        padding: 0 1em;
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/">Index</a>
-    </nav>
-    {{.Content}}
-  </body>
-</html>
+{{define "title"}}{{.Title}} - Ken Shibata{{end}}
+
+{{define "head"}}
+{{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
+{{if .Authors}}<meta name="authors" content="{{.Authors}}">{{end}}
+{{if .Keywords}}<meta name="keywords" content="{{.Keywords}}">{{end}}
+{{end}}
+
+{{define "content"}}
+<article>
+  <h1>{{.Title}}</h1>
+  <p>By {{.Authors}}</p>
+  {{if not .Date.IsZero}}<p>Published on <time datetime="{{.Date.Format "2006-01-02"}}">{{.Date.Format "2006-Jan-02"}}</time></p>{{end}}
+  {{.Content}}
+</article>
+{{end}}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{block "title" .}}Ken Shibata{{end}}</title>
+    {{block "head" .}}{{end}}
+    <style>
+      body {
+        max-width: 40em;
+        margin: 0 auto;
+        padding: 0 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Index</a>
+    </nav>
+    {{block "content" .}}{{end}}
+  </body>
+</html>

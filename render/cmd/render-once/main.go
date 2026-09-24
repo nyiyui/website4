@@ -1,6 +1,4 @@
-// Command render-once builds the site a single time: it compiles every
-// blog post and arbitrary page into the output directory, and writes the
-// root and per-keyword indexes, then exits.
+// Command render-once builds the site a single time and exits.
 package main
 
 import (
@@ -12,13 +10,13 @@ import (
 )
 
 func main() {
-	blogDir := flag.String("blog", "./blog", "directory of dated posts, nested by year")
-	pagesDir := flag.String("pages", "./pages", "directory of arbitrary, non-indexed pages")
-	outDir := flag.String("out", "./public", "output directory served as the site's root")
-	templateDir := flag.String("template", "", "template directory (default: render/template's DefaultDir)")
+	blogDir := flag.String("blog", "./blog", "directory of dated posts")
+	pagesDir := flag.String("pages", "./pages", "directory of non-dated posts")
+	outDir := flag.String("out", "./public", "output directory")
+	templateDir := flag.String("template", "./render/template", "template directory")
 	flag.Parse()
 
-	entries, err := site.Build(*blogDir, *outDir, *templateDir)
+	entries, err := site.RenderBlog(*blogDir, *outDir, *templateDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "render-once: build posts: %v\n", err)
 		os.Exit(1)
@@ -38,6 +36,11 @@ func main() {
 		}
 	} else if !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "render-once: stat pages dir: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := site.InjectRecentPosts(*outDir, entries); err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: inject recent posts: %v\n", err)
 		os.Exit(1)
 	}
 

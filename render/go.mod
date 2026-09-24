@@ -3,3 +3,5 @@ module render
 go 1.26.7
 
 require golang.org/x/net v0.59.0
+
+require golang.org/x/text v0.42.0 // indirect

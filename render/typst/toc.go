@@ -6,10 +6,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-// TocEntry is a single entry in a document's table of contents, corresponding
-// to one heading (h1-h6) in Typst's compiled HTML output. Node points at the
-// original heading element so its rich-text content (emphasis, code spans,
-// etc.) is preserved rather than flattened to plain text.
+// TocEntry is a single header and its children in a table of contents.
 type TocEntry struct {
 	Level    int
 	ID       string
@@ -64,8 +61,7 @@ func collectHeadings(n *html.Node, headings *[]TocEntry) {
 }
 
 // nestHeadings turns a flat, in-order list of headings into a tree based on
-// heading level, using each heading's nearest preceding shallower heading as
-// its parent.
+// heading level.
 func nestHeadings(flat []TocEntry) []TocEntry {
 	var root []TocEntry
 	var stack []*TocEntry

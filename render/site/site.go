@@ -1,20 +1,20 @@
-// Package site walks a directory of Typst posts (nested under year
-// directories, e.g. blogDir/2025/eduroam-cert.typ), compiles them into a
-// separate output directory that mirrors that structure, and builds the
-// root and per-keyword index pages linking to them. It also compiles
-// arbitrary, non-indexed pages (e.g. an "about" page) via RenderPages.
+// Package site walks a directory of blog posts (possibly nested) and a
+// directory of non-blog post pages ("pages") (e.g., /about), collects metadata
+// and builds the output into a static website.
 //
-// Every URL this package produces is root-relative (e.g. "/2025/foo.html"),
-// on the assumption that outDir is served as the site's root.
+// We assume that the website is served from root (e.g., https://example.org/abc
+// serves <output>/abc).
 package site
 
 import (
-	"html/template"
+	"bytes"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"golang.org/x/text/unicode/norm"
 
 	pagetemplate "render/template"
 	"render/typst"
@@ -26,10 +26,12 @@ type Entry struct {
 	URL string
 }
 
-// Build finds every .typ file under blogDir, compiles each into outDir
-// (mirroring blogDir's directory structure), wraps it in the page shell
-// loaded from templateDir, and returns one Entry per post.
-func Build(blogDir, outDir, templateDir string) ([]Entry, error) {
+// RenderBlog renders every Typst file under blogDir, and puts the result in
+// outDir. It also returns a list of entries, with metadata about the post.
+//
+// It wraps each Typst document in templateDir/page.html, which should provide
+// the necessary layout and navigation.
+func RenderBlog(blogDir, outDir, templateDir string) ([]Entry, error) {
 	paths, err := findTypstFiles(blogDir)
 	if err != nil {
 		return nil, err
@@ -52,10 +54,10 @@ func Build(blogDir, outDir, templateDir string) ([]Entry, error) {
 	return entries, nil
 }
 
-// RenderPages compiles every .typ file under dir (e.g. an "about" page)
-// into outDir (mirroring dir's directory structure) and wraps it in the page
-// shell loaded from templateDir. Unlike Build, these pages aren't collected
-// into any index. It returns the number of pages compiled.
+// RenderPages renders every Typst file under dir and returns the number of pages made.
+//
+// It wraps each Typst document in templateDir/page.html, which should provide
+// the necessary layout and navigation.
 func RenderPages(dir, outDir, templateDir string) (int, error) {
 	paths, err := findTypstFiles(dir)
 	if err != nil {
@@ -75,9 +77,9 @@ func RenderPages(dir, outDir, templateDir string) (int, error) {
 	return len(paths), nil
 }
 
-// compile compiles typstPath to htmlPath, creating htmlPath's directory as
-// needed, and wraps the result in the page shell loaded from templateName
-// (e.g. "post.html" or "page.html") in templateDir.
+// compile renders a Typst document (at typstPath) and wraps the document in
+// a template. The result is stored at htmlPath (directories are created as
+// necessary).
 func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metadata, error) {
 	if err := os.MkdirAll(filepath.Dir(htmlPath), 0o755); err != nil {
 		return typst.Metadata{}, err
@@ -89,9 +91,26 @@ func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metad
 	if err != nil {
 		return typst.Metadata{}, err
 	}
-	if err := typst.ApplyLayout(htmlPath, meta, templateDir, templateName); err != nil {
+	content, err := typst.Body(htmlPath)
+	if err != nil {
 		return typst.Metadata{}, err
 	}
+
+	out, err := pagetemplate.Render(templateDir, templateName, pagetemplate.PageData{
+		Title:       meta.Title,
+		Description: meta.Description,
+		Authors:     strings.Join(meta.Authors, ", "),
+		Keywords:    strings.Join(meta.Keywords, ", "),
+		Date:        meta.Date,
+		Content:     content,
+	})
+	if err != nil {
+		return typst.Metadata{}, err
+	}
+	if err := os.WriteFile(htmlPath, out, 0o644); err != nil {
+		return typst.Metadata{}, err
+	}
+
 	return meta, nil
 }
 
@@ -112,11 +131,13 @@ func findTypstFiles(dir string) ([]string, error) {
 
 // Keywords returns the distinct set of keywords used across entries, sorted
 // alphabetically.
+//
+// Keywords are compared under Unicode NFKC normalization.
 func Keywords(entries []Entry) []string {
 	seen := make(map[string]bool)
 	var keywords []string
 	for _, e := range entries {
-		for _, k := range e.Keywords {
+		for _, k := range normalizeKeywords(e.Keywords) {
 			if !seen[k] {
 				seen[k] = true
 				keywords = append(keywords, k)
@@ -127,14 +148,26 @@ func Keywords(entries []Entry) []string {
 	return keywords
 }
 
+// normalizeKeywords returns keywords under Unicode NFKC normalization, so
+// e.g. combining-character, precomposed, and compatibility spellings of the
+// same keyword compare equal.
+func normalizeKeywords(keywords []string) []string {
+	normalized := make([]string, len(keywords))
+	for i, k := range keywords {
+		normalized[i] = norm.NFKC.String(k)
+	}
+	return normalized
+}
+
 // recentPostsLimit caps how many posts the root index lists.
 const recentPostsLimit = 5
 
-// WriteIndexes renders the root index — the recentPostsLimit most recent
-// posts — and one index per keyword listing every matching post, writing
-// them under outDir as index.html and keywords/<keyword>.html.
+// WriteIndexes renders the (root) index and index pages for each keyword.
+// The index contains the recentPostsLimit-most recent posts.
+//
+// The index page is at index.html, and each keyword at keywords/<keyword>.html.
 func WriteIndexes(outDir string, entries []Entry, templateDir string) error {
-	root, err := renderIndex("index.html", "Home", entries, recentPostsLimit, templateDir)
+	root, err := renderIndex("index.html", "", entries, recentPostsLimit, templateDir)
 	if err != nil {
 		return err
 	}
@@ -167,12 +200,13 @@ func WriteIndexes(outDir string, entries []Entry, templateDir string) error {
 	return nil
 }
 
-// withKeyword returns the entries tagged with keyword.
+// withKeyword returns the entries tagged with keyword. keyword is assumed to
+// already be NFKC-normalized, as Keywords returns it.
 func withKeyword(entries []Entry, keyword string) []Entry {
 	var matched []Entry
 	for _, e := range entries {
 		for _, k := range e.Keywords {
-			if k == keyword {
+			if norm.NFKC.String(k) == keyword {
 				matched = append(matched, e)
 				break
 			}
@@ -181,10 +215,24 @@ func withKeyword(entries []Entry, keyword string) []Entry {
 	return matched
 }
 
-// renderIndex sorts entries most-recent-first, keeps at most limit of them
-// (or all of them if limit is 0), and renders them via templateName (e.g.
-// "index.html" or "keyword.html") in templateDir.
+// renderIndex renders the recentPostsFor(entries, limit) list under
+// templateName (e.g., "index.html" or "keyword.html") in templateDir.
 func renderIndex(templateName, title string, entries []Entry, limit int, templateDir string) ([]byte, error) {
+	list, err := pagetemplate.RenderEntries(recentPostsFor(entries, limit))
+	if err != nil {
+		return nil, err
+	}
+
+	return pagetemplate.RenderIndex(templateDir, templateName, pagetemplate.IndexData{
+		Title:   title,
+		Entries: list,
+	})
+}
+
+// recentPostsFor sorts entries most-recent-first, keeps at most limit of
+// them (or all of them if limit is 0), and converts them into the
+// []pagetemplate.Metadata RenderEntries expects.
+func recentPostsFor(entries []Entry, limit int) []pagetemplate.Metadata {
 	sorted := append([]Entry(nil), entries...)
 	sort.Slice(sorted, func(i, j int) bool {
 		return sorted[i].Date.After(sorted[j].Date)
@@ -193,21 +241,40 @@ func renderIndex(templateName, title string, entries []Entry, limit int, templat
 		sorted = sorted[:limit]
 	}
 
-	items := make([]template.HTML, len(sorted))
+	metas := make([]pagetemplate.Metadata, len(sorted))
 	for i, e := range sorted {
-		item := pagetemplate.IndexItem{Title: e.Title, URL: e.URL}
-		if !e.Date.IsZero() {
-			item.Date = e.Date.Format("2006-01-02")
-		}
-		html, err := pagetemplate.RenderEntry(item)
-		if err != nil {
-			return nil, err
-		}
-		items[i] = html
+		meta := e.Metadata
+		meta.Keywords = normalizeKeywords(meta.Keywords)
+		metas[i] = pagetemplate.Metadata{Metadata: meta, URL: e.URL}
+	}
+	return metas
+}
+
+// recentPostsPlaceholder is a marker any compiled page can embed (e.g. via
+// #html.elem("div", attrs: (id: "recent-posts-here")) in Typst) to have it
+// replaced with the recentPostsLimit most recent posts.
+const recentPostsPlaceholder = `<div id="recent-posts-here"></div>`
+
+// InjectRecentPosts replaces the placeholder with a set of recent posts, only
+// for index.html.
+func InjectRecentPosts(outDir string, entries []Entry) error {
+	list, err := pagetemplate.RenderEntries(recentPostsFor(entries, recentPostsLimit))
+	if err != nil {
+		return err
 	}
 
-	return pagetemplate.RenderIndex(templateDir, templateName, pagetemplate.IndexData{
-		Title: title,
-		Items: items,
+	return filepath.WalkDir(outDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || d.Name() != "index.html" {
+			return err
+		}
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if !bytes.Contains(content, []byte(recentPostsPlaceholder)) {
+			return nil
+		}
+		replaced := bytes.Replace(content, []byte(recentPostsPlaceholder), []byte(list), 1)
+		return os.WriteFile(path, replaced, 0o644)
 	})
 }

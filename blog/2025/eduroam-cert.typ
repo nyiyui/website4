@@ -6,8 +6,6 @@
   date: datetime(year: 2025, month: 7, day: 20)
 )
 
-= How to Connect to Eduroam using GT's New Certificate-based Authentication
-
 _This is a living document; content will be updated as necessary (after the initial post date)._
 
 Georgia Tech has been rolling out a new TLS client certificate-based (instead of a username and password) authentication method for eduroam.

@@ -1,11 +1,11 @@
-// Package template renders documents into a page shell, independent of
-// whatever produced the document content (e.g. Typst). Each page type has
-// its own template file: post.html for blog posts, page.html for arbitrary
-// pages, index.html for the root index, and keyword.html for per-keyword
-// indexes. entry.html renders a single post's metadata into a link fragment
-// used by index.html and keyword.html.
+// Package template renders data (e.g., list of documents) and documents to
+// HTML.
 //
-// entry.html is embedded into the binary at build time; the rest are read
+// base.html is the shared page shell (doctype, head, nav); each page type
+// (post.html, page.html, index.html, keyword.html) fills in base.html's
+// "title", "head", and "content" blocks.
+//
+// entries.html is embedded into the binary at build time; the rest are read
 // from disk at render time so they can be edited without a rebuild.
 package template
 
@@ -14,15 +14,15 @@ import (
 	"embed"
 	"html/template"
 	"path/filepath"
+	"time"
+
+	"render/typst"
 )
 
-// DefaultDir is the template directory used when dir is empty.
-const DefaultDir = "./render/template/"
+//go:embed entries.html
+var entriesFS embed.FS
 
-//go:embed entry.html
-var entryFS embed.FS
-
-var entryTmpl = template.Must(template.ParseFS(entryFS, "entry.html"))
+var entriesTmpl = template.Must(template.ParseFS(entriesFS, "entries.html"))
 
 // PageData is the data rendered into post.html and page.html.
 type PageData struct {
@@ -30,53 +30,47 @@ type PageData struct {
 	Description string
 	Authors     string
 	Keywords    string
+	Date        time.Time
 	Content     template.HTML
 }
 
-// IndexItem is one post's metadata, rendered into a link fragment by
-// RenderEntry.
-type IndexItem struct {
-	Title string
-	URL   string
-	Date  string
+// Metadata pairs a post's Typst metadata with the URL it's served at.
+type Metadata struct {
+	typst.Metadata
+	URL string
 }
 
 // IndexData is the data rendered into index.html and keyword.html.
 type IndexData struct {
-	Title string
-	Items []template.HTML
+	Title   string
+	Entries template.HTML
 }
 
-// Render parses templateName (e.g. "post.html" or "page.html") out of dir
-// (DefaultDir if dir is empty) and executes it with data, returning the
-// resulting page.
+// Render well renders a single page :D
 func Render(dir, templateName string, data PageData) ([]byte, error) {
 	return execute(dir, templateName, data)
 }
 
-// RenderIndex parses templateName (e.g. "index.html" or "keyword.html") out
-// of dir (DefaultDir if dir is empty) and executes it with data, returning
-// the resulting page.
+// RenderIndex is like Render is exclusively for the index page.
 func RenderIndex(dir, templateName string, data IndexData) ([]byte, error) {
 	return execute(dir, templateName, data)
 }
 
-// RenderEntry executes the embedded entry.html template with item, returning
-// the HTML fragment that links to that post.
-func RenderEntry(item IndexItem) (template.HTML, error) {
+// RenderEntries returns a <ul> listing every post in metas, most-recent
+// order preserved as given.
+func RenderEntries(metas []Metadata) (template.HTML, error) {
 	var buf bytes.Buffer
-	if err := entryTmpl.Execute(&buf, item); err != nil {
+	if err := entriesTmpl.Execute(&buf, metas); err != nil {
 		return "", err
 	}
 	return template.HTML(buf.String()), nil
 }
 
+// execute renders templateName within the shared base.html layout: base.html
+// provides the page shell, and templateName fills in the "title", "head",
+// and "content" blocks it declares.
 func execute(dir, templateName string, data any) ([]byte, error) {
-	if dir == "" {
-		dir = DefaultDir
-	}
-
-	tmpl, err := template.ParseFiles(filepath.Join(dir, templateName))
+	tmpl, err := template.ParseFiles(filepath.Join(dir, "base.html"), filepath.Join(dir, templateName))
 	if err != nil {
 		return nil, err
 	}
