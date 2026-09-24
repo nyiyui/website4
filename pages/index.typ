@@ -25,6 +25,7 @@ My hobbies include model trains and riding railways.
     flex: 1 1 0;
     min-width: 0; /* spite chrome */
     width: 100%;
+    height: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
   }
