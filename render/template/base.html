@@ -21,13 +21,16 @@
     </style>
   </head>
   <body>
-    <nav>
+    <nav role="navigation">
+      <!-- combined banner and navigation but oh well -->
       <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> Ken Shibata
       <a href="/">Home</a>
       <a href="/all-posts.html">Blog</a>
     </nav>
-    {{block "content" .}}{{end}}
-    <footer>
+    <main role="main">
+      {{block "content" .}}{{end}}
+    </main>
+    <footer role="contentinfo">
       <a href="https://www.julianlbauer.com">←</a>
       Bay Leaf Webring
       <a href="https://dan.onl">→</a>
