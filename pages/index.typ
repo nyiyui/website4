@@ -9,7 +9,7 @@ Welcome to my website!
 My interests lie in low-level systems, programming languages (PL) and compilers, and VR (#link(<pl-and-vr>)[why?]).
 
 At Georgia Tech, I
-- spread interesting PL and compiler ideas through weekly meetings of the #link("https://dtyped.gtorg.gatech.edu")[dependently-typed club] (we have a website now!),
+- spread interesting PL and compiler ideas by hosting weekly meetings of the #link("https://dtyped.gtorg.gatech.edu")[dependently-typed club] (#link("mailto:ken.shibata@gatech.edu")[email me if you want to present!]),
 - support researchers using LLM tooling at the #link("https://pace.gatech.edu/")[supercomputing center],
 - help run the #link("https://www.gtxr.club/")[Georgia Tech Extended Reality club] as a Directory of Technology, and
 - run a #link("mailto:modeltrains@groups.gatech.edu")[model trains club].
