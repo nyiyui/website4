@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecting to Eduroam using GT&#39;s New Certificate-based Authentication</title>
+<meta name="description" content="description wow">
+<meta name="authors" content="Ken Shibata, Two">
+<meta name="keywords" content="eduroam, two">
+<style>body{max-width:40em;margin:0 auto;padding:0 1em}</style>
+</head>
+<body>
+<p><em>This is a living document; content will be updated as necessary (after the initial post date).</em></p><p>Georgia Tech has been rolling out a new TLS client certificate-based (instead of a username and password) authentication method for eduroam.</p><p>As a supplement to the <a href="https://gatech.service-now.com/technology?id=kb_article_view&amp;sysparm_article=KB0044211">guide on ServiceNow</a>, this page provides a walkthrough for NetworkManager, using <code>nm-connection-editor</code>.</p><h3>Generate a Certificate using the SecureW2 JoinNow Advanced Portal</h3><p><em>Note: This section is essentially the same as the ServiceNow page.</em></p><p>Get your Wi-Fi interface’s MAC address (or choose a random MAC address to use):</p><pre><code data-lang="sh"><span style="color: #4b69c6">nmcli</span></code></pre><p>You’ll get something like this:</p><pre><code>wlp0s20f3: connected to eduroam (GT cert)
+  &#34;Intel Something Something&#34;
+  wifi (iwlwifi), AA:AA:AA:AA:AA:AA, hw, mtu 1234
+  ip4 default
+  inet4 1.2.3.4/23
+  route4 1.2.3.4/23 metric 600
+  route4 default via 1.2.3.4 metric 600
+  inet6 fe80::/64
+  route6 fe80::/64 metric 1024
+
+lo: connected (externally) to lo
+  &#34;lo&#34;
+  loopback (unknown), 00:00:00:00:00:00, sw, mtu 65536
+  inet4 127.0.0.1/8
+  inet6 ::1/128
+
+DNS configuration:
+  servers: 137.82.1.1 142.103.1.1 137.82.1.2 142.103.1.42
+  domains: wireless.ubc.ca
+  interface: wlp0s20f3
+
+Use &#34;nmcli device show&#34; to get complete information about known devices and
+&#34;nmcli connection show&#34; to get an overview on active connection profiles.
+
+Consult nmcli(1) and nmcli-examples(7) manual pages for complete usage details.</code></pre><ol><li value="1">Open the <a href="https://wifi.gatech.edu/joinnowadvanced">SecureW2 JoinNow Advanced Portal</a>. Note: make sure to enter the correct MAC address.</li><li value="2">Download the P12 file. (Make sure to keep the passphrase you used here.)</li><li value="3">Download the <code>USERTrust RSA Certification Authority</code>.</li></ol><h3>Setup NetworkManager</h3><table><tbody><tr><td>Name</td><td>Value</td></tr><tr><td>Security</td><td>WPA/WPA2 Enterprise</td></tr><tr><td>Authentication</td><td>TLS</td></tr><tr><td>Identity</td><td>gburdell3@gatech.edu</td></tr><tr><td>Domain</td><td>lawn.gatech.edu</td></tr><tr><td>CA certificate</td><td>usertrustrsaca [jdk].cer<sup id="loc-1" role="doc-noteref"><a href="#loc-2">1</a></sup></td></tr><tr><td>CA certificate password</td><td>None</td></tr><tr><td>User certificate</td><td>gburdell3@gatech.edu.p12<sup id="p12_file" role="doc-noteref"><a href="#loc-3">2</a></sup></td></tr><tr><td>User certificate password</td><td>None</td></tr><tr><td>User private key</td><td>gburdell3@gatech.edu.p12<sup role="doc-noteref"><a href="#loc-3">2</a></sup> (auto-filled when entering User certificate)</td></tr><tr><td>User key password</td><td>passphrase given in SecureW2 portal</td></tr></tbody></table><p>Done!</p><section role="doc-endnotes"><ol style="list-style-type: none"><li id="loc-2"><sup role="doc-backlink"><a href="#loc-1">1</a></sup>Downloaded in step 3.</li><li id="loc-3"><sup role="doc-backlink"><a href="#p12_file">2</a></sup>This is the <a href="https://en.wikipedia.org/wiki/PKCS_12">PKCS 12</a> file you downloaded in step 2.</li></ol></section>
+</body>
+</html>
