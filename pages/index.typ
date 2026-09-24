@@ -32,10 +32,10 @@ My hobbies include model trains and riding railways.
 ")
 
 #html.elem("div", attrs: (class: "ribbon"))[
-  #html.elem("img", attrs: (src: "/photos/saigoyama.jpg", alt: "A building with two ground floors, one two floors above the other.", width: "128", height: "128"))
-  #html.elem("img", attrs: (src: "/photos/big_chute.jpg", alt: "The only marine railway in use on Turtle Island!", width: "128", height: "128"))
-  #html.elem("img", attrs: (src: "/photos/tobu_20400.jpg", alt: "Commuter car, with one door hole plugged. You can always fix things later!", width: "128", height: "128"))
-  #html.elem("img", attrs: (src: "/photos/hiyoshi.jpg", alt: "Floor markings tell you to walk on the right, bus used to say left…", width: "128", height: "128"))
+  #html.elem("img", attrs: (src: "/photos/saigoyama.jpg", alt: "A building with two ground floors, one two floors above the other.", width: "200", height: "200"))
+  #html.elem("img", attrs: (src: "/photos/big_chute.jpg", alt: "The only marine railway in use on Turtle Island!", width: "200", height: "200"))
+  #html.elem("img", attrs: (src: "/photos/tobu_20400.jpg", alt: "Commuter car, with one door hole plugged. You can always fix things later!", width: "200", height: "200"))
+  #html.elem("img", attrs: (src: "/photos/hiyoshi.jpg", alt: "Floor markings tell you to walk on the right, bus used to say left…", width: "200", height: "200"))
 ]
 
 // A complete description is on my #link("./cv")[online CV].
