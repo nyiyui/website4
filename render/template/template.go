@@ -5,24 +5,19 @@
 // (post.html, page.html, index.html, keyword.html) fills in base.html's
 // "title", "head", and "content" blocks.
 //
-// entries.html is embedded into the binary at build time; the rest are read
-// from disk at render time so they can be edited without a rebuild.
+// Every template (including entries.html) is read from dir at render time,
+// not embedded, so a whole templateDir (e.g. per-locale, for i18n) can be
+// swapped in without a rebuild.
 package template
 
 import (
 	"bytes"
-	"embed"
 	"html/template"
 	"path/filepath"
 	"time"
 
 	"render/typst"
 )
-
-//go:embed entries.html
-var entriesFS embed.FS
-
-var entriesTmpl = template.Must(template.ParseFS(entriesFS, "entries.html"))
 
 // PageData is the data rendered into post.html and page.html.
 type PageData struct {
@@ -56,11 +51,16 @@ func RenderIndex(dir, templateName string, data IndexData) ([]byte, error) {
 	return execute(dir, templateName, data)
 }
 
-// RenderEntries returns a <ul> listing every post in metas, most-recent
-// order preserved as given.
-func RenderEntries(metas []Metadata) (template.HTML, error) {
+// RenderEntries returns a <ul> listing every post in metas, most-recent order
+// preserved as given.
+func RenderEntries(dir string, metas []Metadata) (template.HTML, error) {
+	tmpl, err := template.ParseFiles(filepath.Join(dir, "entries.html"))
+	if err != nil {
+		return "", err
+	}
+
 	var buf bytes.Buffer
-	if err := entriesTmpl.Execute(&buf, metas); err != nil {
+	if err := tmpl.Execute(&buf, metas); err != nil {
 		return "", err
 	}
 	return template.HTML(buf.String()), nil

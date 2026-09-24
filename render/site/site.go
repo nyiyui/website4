@@ -218,7 +218,7 @@ func withKeyword(entries []Entry, keyword string) []Entry {
 // renderIndex renders the recentPostsFor(entries, limit) list under
 // templateName (e.g., "index.html" or "keyword.html") in templateDir.
 func renderIndex(templateName, title string, entries []Entry, limit int, templateDir string) ([]byte, error) {
-	list, err := pagetemplate.RenderEntries(recentPostsFor(entries, limit))
+	list, err := pagetemplate.RenderEntries(templateDir, recentPostsFor(entries, limit))
 	if err != nil {
 		return nil, err
 	}
@@ -257,8 +257,8 @@ const recentPostsPlaceholder = `<div id="recent-posts-here"></div>`
 
 // InjectRecentPosts replaces the placeholder with a set of recent posts, only
 // for index.html.
-func InjectRecentPosts(outDir string, entries []Entry) error {
-	list, err := pagetemplate.RenderEntries(recentPostsFor(entries, recentPostsLimit))
+func InjectRecentPosts(outDir string, entries []Entry, templateDir string) error {
+	list, err := pagetemplate.RenderEntries(templateDir, recentPostsFor(entries, recentPostsLimit))
 	if err != nil {
 		return err
 	}

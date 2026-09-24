@@ -39,7 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := site.InjectRecentPosts(*outDir, entries); err != nil {
+	if err := site.InjectRecentPosts(*outDir, entries, *templateDir); err != nil {
 		fmt.Fprintf(os.Stderr, "render-once: inject recent posts: %v\n", err)
 		os.Exit(1)
 	}
