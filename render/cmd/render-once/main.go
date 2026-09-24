@@ -60,5 +60,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := site.InjectHeadStyles(*outDir); err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: inject head styles: %v\n", err)
+		os.Exit(1)
+	}
+
 	fmt.Printf("rendered %d post(s), %d page(s) into %s\n", len(entries), pageCount, *outDir)
 }

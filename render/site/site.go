@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	nethtml "golang.org/x/net/html"
 	"golang.org/x/text/unicode/norm"
 
 	pagetemplate "render/template"
@@ -360,4 +361,74 @@ func InjectRecentPosts(outDir string, entries []Entry, templateDir string) error
 		replaced := bytes.Replace(content, []byte(recentPostsPlaceholder), []byte(list), 1)
 		return os.WriteFile(path, replaced, 0o644)
 	})
+}
+
+// InjectHeadStyles moves every top-level <style> element out of <body> and
+// into <head>, only for index.html. Typst has no way to place a <style> tag
+// in <head> itself (all html.elem content is emitted into <body>), so this
+// lifts it up :D
+func InjectHeadStyles(outDir string) error {
+	return filepath.WalkDir(outDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || d.Name() != "index.html" {
+			return err
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		doc, err := nethtml.Parse(f)
+		f.Close()
+		if err != nil {
+			return err
+		}
+
+		head := findHTMLNode(doc, "head")
+		body := findHTMLNode(doc, "body")
+		if head == nil || body == nil {
+			return nil
+		}
+
+		var styles []*nethtml.Node
+		collectHTMLNodes(body, "style", &styles)
+		if len(styles) == 0 {
+			return nil
+		}
+		for _, s := range styles {
+			s.Parent.RemoveChild(s)
+			head.AppendChild(s)
+		}
+
+		out, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		defer out.Close()
+		return nethtml.Render(out, doc)
+	})
+}
+
+// findHTMLNode returns the first descendant of n (or n itself) with the
+// given tag name, or nil if none is found.
+func findHTMLNode(n *nethtml.Node, tag string) *nethtml.Node {
+	if n.Type == nethtml.ElementNode && n.Data == tag {
+		return n
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if found := findHTMLNode(c, tag); found != nil {
+			return found
+		}
+	}
+	return nil
+}
+
+// collectHTMLNodes appends every descendant of n (n itself included) with
+// the given tag name to *found.
+func collectHTMLNodes(n *nethtml.Node, tag string, found *[]*nethtml.Node) {
+	if n.Type == nethtml.ElementNode && n.Data == tag {
+		*found = append(*found, n)
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		collectHTMLNodes(c, tag, found)
+	}
 }
