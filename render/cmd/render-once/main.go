@@ -12,6 +12,7 @@ import (
 func main() {
 	blogDir := flag.String("blog", "./blog", "directory of dated posts")
 	pagesDir := flag.String("pages", "./pages", "directory of non-dated posts")
+	staticDir := flag.String("static", "./static", "directory of static assets copied as-is")
 	outDir := flag.String("out", "./public", "output directory")
 	templateDir := flag.String("template", "./render/template", "template directory")
 	flag.Parse()
@@ -41,6 +42,16 @@ func main() {
 		}
 	} else if !os.IsNotExist(err) {
 		fmt.Fprintf(os.Stderr, "render-once: stat pages dir: %v\n", err)
+		os.Exit(1)
+	}
+
+	if _, err := os.Stat(*staticDir); err == nil {
+		if err := site.CopyStatic(*staticDir, *outDir); err != nil {
+			fmt.Fprintf(os.Stderr, "render-once: copy static: %v\n", err)
+			os.Exit(1)
+		}
+	} else if !os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "render-once: stat static dir: %v\n", err)
 		os.Exit(1)
 	}
 

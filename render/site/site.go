@@ -78,6 +78,31 @@ func RenderPages(dir, outDir, templateDir string) (int, error) {
 	return len(paths), nil
 }
 
+// CopyStatic copies every file under dir to the same relative path under
+// outDir, for assets that don't go through Typst (a favicon, downloadable
+// files, images you don't want base64-inlined by Typst's HTML export, etc.).
+func CopyStatic(dir, outDir string) error {
+	return filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+		dst := filepath.Join(outDir, rel)
+
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+			return err
+		}
+		return os.WriteFile(dst, content, 0o644)
+	})
+}
+
 // compile renders a Typst document (at typstPath) and wraps the document in
 // a template. The result is stored at htmlPath (directories are created as
 // necessary).
