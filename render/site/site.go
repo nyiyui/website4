@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"golang.org/x/text/unicode/norm"
@@ -213,6 +214,63 @@ func withKeyword(entries []Entry, keyword string) []Entry {
 		}
 	}
 	return matched
+}
+
+// WriteAllPosts renders a page listing every post, grouped by year (most
+// recent year first, most recent post first within each year), to
+// outDir/all-posts.html.
+func WriteAllPosts(outDir string, entries []Entry, templateDir string) error {
+	yearGroups := groupByYear(entries)
+
+	years := make([]pagetemplate.YearGroup, len(yearGroups))
+	for i, g := range yearGroups {
+		list, err := pagetemplate.RenderEntries(templateDir, recentPostsFor(g.entries, 0))
+		if err != nil {
+			return err
+		}
+		years[i] = pagetemplate.YearGroup{Year: strconv.Itoa(g.year), Entries: list}
+	}
+
+	page, err := pagetemplate.RenderAllPosts(templateDir, "all-posts.html", pagetemplate.AllPostsData{
+		Title: "All Posts",
+		Years: years,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(outDir, 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(outDir, "all-posts.html"), page, 0o644)
+}
+
+// yearGroup is every entry published in year, used by groupByYear.
+type yearGroup struct {
+	year    int
+	entries []Entry
+}
+
+// groupByYear buckets entries by their Date's year, returning groups sorted
+// most-recent year first.
+func groupByYear(entries []Entry) []yearGroup {
+	byYear := make(map[int][]Entry)
+	for _, e := range entries {
+		year := e.Date.Year()
+		byYear[year] = append(byYear[year], e)
+	}
+
+	years := make([]int, 0, len(byYear))
+	for y := range byYear {
+		years = append(years, y)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(years)))
+
+	groups := make([]yearGroup, len(years))
+	for i, y := range years {
+		groups[i] = yearGroup{year: y, entries: byYear[y]}
+	}
+	return groups
 }
 
 // renderIndex renders the recentPostsFor(entries, limit) list under

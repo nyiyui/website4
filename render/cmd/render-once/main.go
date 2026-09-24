@@ -27,6 +27,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err := site.WriteAllPosts(*outDir, entries, *templateDir); err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: write all-posts: %v\n", err)
+		os.Exit(1)
+	}
+
 	pageCount := 0
 	if _, err := os.Stat(*pagesDir); err == nil {
 		pageCount, err = site.RenderPages(*pagesDir, *outDir, *templateDir)

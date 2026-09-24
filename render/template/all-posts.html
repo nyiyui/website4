@@ -1,0 +1,8 @@
+{{define "title"}}All Posts - Ken Shibata{{end}}
+
+{{define "content"}}
+<h1>All Posts</h1>
+{{range .Years}}<h2>{{.Year}}</h2>
+{{.Entries}}
+{{end}}
+{{end}}

@@ -41,6 +41,18 @@ type IndexData struct {
 	Entries template.HTML
 }
 
+// YearGroup is one year's worth of posts, pre-rendered into a <ul>.
+type YearGroup struct {
+	Year    string
+	Entries template.HTML
+}
+
+// AllPostsData is the data rendered into all-posts.html.
+type AllPostsData struct {
+	Title string
+	Years []YearGroup
+}
+
 // Render well renders a single page :D
 func Render(dir, templateName string, data PageData) ([]byte, error) {
 	return execute(dir, templateName, data)
@@ -48,6 +60,11 @@ func Render(dir, templateName string, data PageData) ([]byte, error) {
 
 // RenderIndex is like Render is exclusively for the index page.
 func RenderIndex(dir, templateName string, data IndexData) ([]byte, error) {
+	return execute(dir, templateName, data)
+}
+
+// RenderAllPosts is like Render, exclusively for the all-posts page.
+func RenderAllPosts(dir, templateName string, data AllPostsData) ([]byte, error) {
 	return execute(dir, templateName, data)
 }
 
