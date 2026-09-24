@@ -30,7 +30,7 @@ My hobbies include model trains and riding railways.
 ")
 
 #html.elem("div", attrs: (class: "ribbon"))[
-  #html.elem("img", attrs: (src: "/photos/saigoyama.jpg", alt: [A building with two ground floors, one two floors above the other.]))
+  #html.elem("img", attrs: (src: "/photos/saigoyama.jpg", alt: "A building with two ground floors, one two floors above the other."))
   #html.elem("img", attrs: (src: "/photos/big_chute.jpg", alt: "The only marine railway in use on Turtle Island!"))
   #html.elem("img", attrs: (src: "/photos/tobu_20400.jpg", alt: "Commuter car, with one door hole plugged. You can always fix things later!"))
   #html.elem("img", attrs: (src: "/photos/hiyoshi.jpg", alt: "Floor markings tell you to walk on the right, bus used to say left…"))
