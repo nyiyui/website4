@@ -5,6 +5,7 @@
 
 I am an undergraduate studying CS at #link("https://gatech.edu")[Georgia Tech] (#link("https://www.cc.gatech.edu/academics/threads/systems-architecture")[Systems & Architecture] and #link("https://www.cc.gatech.edu/academics/threads/theory")[Theory]) with a minor in Math.
 Welcome to my website!
+#html.span(role: "img", aria-label: "happily waving hello")[ヾ(^▽^)ﾉ]
 My interests lie in low-level systems, programming languages (PL) and compilers, and VR (#link(<pl-and-vr>)[why?]).
 
 At Georgia Tech, I
