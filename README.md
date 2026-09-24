@@ -5,3 +5,6 @@ Goals:
 - works well with TUI browser
 - builds fast
 - reasonable a11y
+
+TODOs:
+- copy over content from old websites
