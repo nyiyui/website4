@@ -20,7 +20,8 @@ My hobbies include model trains and riding railways.
 // TODO
 
 == News <news>
-// - I'm attending #link("https://ieeevr.org/2026/")[IEEE VR 2026] and presenting at the #link("https://sites.google.com/view/immer-sense/home")[IMMER-SENSE workshop].
+- I've rewrote my website (again)! Pages use Typst now! I'm in the process of copying pages over from my old website, please excuse this empty site…
+- I'm attending #link("https://ieeevr.org/2026/")[IEEE VR 2026] and presenting at the #link("https://sites.google.com/view/immer-sense/home")[IMMER-SENSE workshop].
 
 == Recent Posts
 // The below element is replaced w/ the actual recent posts fragment at build time.
