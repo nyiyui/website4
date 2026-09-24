@@ -14,6 +14,8 @@ At Georgia Tech, I
 - help run the #link("https://www.gtxr.club/")[Georgia Tech Extended Reality club] as a Directory of Technology, and
 - run a #link("mailto:modeltrains@groups.gatech.edu")[model trains club].
 
+I care about accessibility! Although I do try to make my website reasonably accessible for everyone, please send me an email (ken dot shibata at this domain) if not. I'll do my best to respond and make it more accessible.
+
 My hobbies include model trains and riding railways.
 
 #html.elem("style", "
