@@ -1,8 +1,8 @@
 #set document(
   title: [How to Connect to GT Eduroam with a Client Certificate],
 	author: ("Ken Shibata"),
-	description: [*description* wow],
-	keywords: ("eduroam", "NetworkManager"),
+	description: [How to configure NetworkManager to connect to Georgia Tech eduroam with the new certificate-based authentication.],
+	keywords: ("eduroam", "NetworkManager", "Georgia Tech"),
   date: datetime(year: 2025, month: 7, day: 20)
 )
 
@@ -12,7 +12,7 @@ Georgia Tech has been rolling out a new TLS client certificate-based (instead of
 
 As a supplement to the #link("https://gatech.service-now.com/technology?id=kb_article_view&sysparm_article=KB0044211")[guide on ServiceNow], this page provides a walkthrough for NetworkManager, using `nm-connection-editor`.
 
-== Generate a Certificate using the SecureW2 JoinNow Advanced Portal
+= Generate a Certificate using the SecureW2 JoinNow Advanced Portal
 
 _Note: This section is essentially the same as the ServiceNow page._
 
@@ -54,7 +54,7 @@ Consult nmcli(1) and nmcli-examples(7) manual pages for complete usage details.
 2. Download the P12 file. (Make sure to keep the passphrase you used here.)
 3. Download the `USERTrust RSA Certification Authority`.
 
-== Setup NetworkManager
+= Setup NetworkManager
 #table(
 columns: 2,
 [Name], [Value],

@@ -4,6 +4,14 @@
 {{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
 {{if .Authors}}<meta name="authors" content="{{.Authors}}">{{end}}
 {{if .Keywords}}<meta name="keywords" content="{{.Keywords}}">{{end}}
+<style>
+  aside {
+    padding-left: 1em;
+    margin-left: 0.5em;
+    box-shadow: inset 6px 0 5px -5px #137a7f;
+    color: #137a7f;
+  }
+</style>
 {{end}}
 
 {{define "content"}}
