@@ -43,21 +43,21 @@ My hobbies include model trains and riding railways.
 // A complete description is on my #link("./cv")[online CV].
 // TODO
 
-== News <news>
+= News <news>
 - I've rewrote my website (again)! Pages use #link("https://typst.app")[Typst] now#footnote[Inspired by #link("https://www.julianlbauer.com/about")[Julian]'s website]! I'm in the process of copying pages over from my old website, please excuse this empty site…
 - I'm attending #link("https://ieeevr.org/2026/")[IEEE VR 2026] and presenting at the #link("https://sites.google.com/view/immer-sense/home")[IMMER-SENSE workshop].
 
-== Recent Posts
+= Recent Posts
 // The below element is replaced w/ the actual recent posts fragment at build time.
 
 #html.elem("div", attrs: (id: "recent-posts-here"))
 
-== Contact and Identities <contact>
+= Contact and Identities <contact>
 Email: #link("mailto:ken.shibata@gatech.edu") or same username but this domain instead
 
 ORCID: #link("https://orcid.org/0009-0000-4393-9964")[0009-0000-4393-9964]
 
-== Why PL and VR, two seemingly unrelated fields? <pl-and-vr>
+= Why PL and VR, two seemingly unrelated fields? <pl-and-vr>
 I grew up surrounded by computers and spend a good chunk of my time
 understanding them through experimentation and reading as I found joy in
 clarifying mechanical#footnote[meaning automatic (in the sense of "automatic programming"), not necessarily related to physical machinery] processes.
