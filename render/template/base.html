@@ -10,16 +10,31 @@
         color-scheme: light dark;
       }
       body {
+        margin: 0 0 1em;
+      }
+      main, footer {
         max-width: 40em;
-        margin: 1em auto;
+        margin: 0 auto;
         padding: 0 1em;
       }
-      nav {
+      .topbar {
+        background-color: #ffa8d4;
+        color: #000;
+      }
+      .topbar-inner {
+        max-width: 40em;
+        margin: 0 auto;
+        padding: 0.5em 1em;
         font-family: system-ui, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      nav a {
+        margin-left: 1em;
       }
       nav a, nav a:visited {
-        text-decoration: none;
-        /* I think the links look like links enough (it's called Home and Blog!). */
+        color: #000;
       }
       :target {
         text-decoration: underline;
@@ -27,12 +42,17 @@
     </style>
   </head>
   <body>
-    <nav role="navigation">
-      <!-- combined banner and navigation but oh well -->
-      <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> Ken Shibata
-      <a href="/">Home</a>
-      <a href="/all-posts.html">Blog</a>
-    </nav>
+    <div class="topbar">
+      <div class="topbar-inner">
+        <header role="banner">
+          <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> Ken Shibata
+        </header>
+        <nav role="navigation">
+          <a href="/">Home</a>
+          <a href="/all-posts.html">Blog</a>
+        </nav>
+      </div>
+    </div>
     <main role="main">
       {{block "content" .}}{{end}}
     </main>
