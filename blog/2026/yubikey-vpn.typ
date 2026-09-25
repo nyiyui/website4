@@ -140,7 +140,7 @@ This will set the site to always open with the GT VPN container, and so will alw
 #html.elem("picture")[
   #html.elem("source", attrs: (srcset: ("/2026/multi-account-containers-set-proxy.avif"), type: "image/avif"))
   #html.elem("source", attrs: (srcset: ("/2026/multi-account-containers-set-proxy.webp"), type: "image/webp"))
-  #html.img(src: "/2026/multi-account-containers-set-proxy.png", alt: "Configuration dialog with the proxy settings button, the second-to-last option, selected.")
+  #html.img(src: "/2026/multi-account-containers-set-proxy.png", alt: "Configuration dialog with the proxy settings button, the second-to-last option, selected.", width: 368, height: 607)
 ]
 
 = Happy Blazingly Fast Connecting!!!
