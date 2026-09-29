@@ -9,23 +9,33 @@ import (
 	nethtml "golang.org/x/net/html"
 )
 
-// Body parses the Typst-compiled file at htmlPath and re-serializes the
-// children of its <body> element back to HTML.
-func Body(htmlPath string) (template.HTML, error) {
+// Body parses the Typst-compiled file at htmlPath and returns the children
+// of its <body> element re-serialized back to HTML, along with a table of
+// contents built from its headings.
+func Body(htmlPath string) (content template.HTML, toc template.HTML, err error) {
 	f, err := os.Open(htmlPath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	defer f.Close()
 
 	doc, err := nethtml.Parse(f)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	body := findNode(doc, "body")
 	if body == nil {
-		return "", fmt.Errorf("typst: no <body> element found in %s", htmlPath)
+		return "", "", fmt.Errorf("typst: no <body> element found in %s", htmlPath)
+	}
+
+	AssignHeadingIDs(body)
+
+	var flat []TocEntry
+	collectHeadings(body, &flat)
+	toc, err = RenderTOC(nestHeadings(flat))
+	if err != nil {
+		return "", "", err
 	}
 
 	wrapHeadingSections(body)
@@ -33,10 +43,10 @@ func Body(htmlPath string) (template.HTML, error) {
 	var buf bytes.Buffer
 	for c := body.FirstChild; c != nil; c = c.NextSibling {
 		if err := nethtml.Render(&buf, c); err != nil {
-			return "", err
+			return "", "", err
 		}
 	}
-	return template.HTML(buf.String()), nil
+	return template.HTML(buf.String()), toc, nil
 }
 
 // wrapHeadingSections rewrites parent's children in place, moving each h2

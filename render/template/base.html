@@ -50,9 +50,55 @@
       h2, h3, h4, h5, h6 {
         background-color: #ffa8d470;
       }
+      nav.toc {
+        position: fixed;
+        top: 4em;
+        right: calc(50% + 22em);
+        width: 14em;
+        max-height: calc(100vh - 6em);
+        overflow-y: auto;
+        font-size: 0.9em;
+      }
+      nav.toc ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      nav.toc li > ul {
+        padding-left: 1em;
+      }
+      nav.toc li {
+        text-indent: 2em hanging;
+      }
+      nav.toc a, nav.toc a:visited {
+        color: inherit;
+      }
+      @media (max-width: 75em) {
+        nav.toc {
+          display: none;
+        }
+      }
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .skip-link:focus {
+        position: fixed;
+        left: 1em;
+        top: 1em;
+        width: auto;
+        height: auto;
+        padding: 0.5em 1em;
+        background-color: #ffa8d4;
+        color: #000;
+        z-index: 1;
+      }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="topbar">
       <div class="topbar-inner">
         <header role="banner">
@@ -66,7 +112,8 @@
         </nav>
       </div>
     </div>
-    <main role="main">
+    {{block "toc" .}}{{end}}
+    <main role="main" id="main-content">
       {{block "content" .}}{{end}}
     </main>
     <footer role="contentinfo">

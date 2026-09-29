@@ -118,7 +118,7 @@ func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metad
 	if err != nil {
 		return typst.Metadata{}, err
 	}
-	content, err := typst.Body(htmlPath)
+	content, toc, err := typst.Body(htmlPath)
 	if err != nil {
 		return typst.Metadata{}, err
 	}
@@ -130,6 +130,7 @@ func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metad
 		Keywords:    strings.Join(meta.Keywords, ", "),
 		Date:        meta.Date,
 		Content:     content,
+		TOC:         toc,
 	})
 	if err != nil {
 		return typst.Metadata{}, err

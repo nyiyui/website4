@@ -27,6 +27,7 @@ type PageData struct {
 	Keywords    string
 	Date        time.Time
 	Content     template.HTML
+	TOC         template.HTML
 }
 
 // Metadata pairs a post's Typst metadata with the URL it's served at.

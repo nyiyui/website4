@@ -35,3 +35,5 @@
   {{.Content}}
 </article>
 {{end}}
+
+{{define "toc"}}{{if .TOC}}<nav class="toc" role="navigation" aria-label="Table of contents">{{.TOC}}</nav>{{end}}{{end}}
