@@ -18,8 +18,7 @@
         padding: 0 1em;
       }
       .topbar {
-        background-color: #ffa8d4;
-        color: #000;
+        background-color: #ffa8d470;
       }
       .topbar-inner {
         max-width: 40em;
@@ -36,8 +35,18 @@
       nav a, nav a:visited {
         color: #000;
       }
+      @media (prefers-color-scheme: dark) {
+        nav a, nav a:visited {
+          color: #fff;
+        }
+      }
       :target {
         text-decoration: underline;
+      }
+      h2 {
+        position: sticky;
+        top: 0;
+        background-color: #ffa8d470;
       }
     </style>
   </head>
