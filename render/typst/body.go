@@ -28,6 +28,8 @@ func Body(htmlPath string) (template.HTML, error) {
 		return "", fmt.Errorf("typst: no <body> element found in %s", htmlPath)
 	}
 
+	wrapHeadingSections(body)
+
 	var buf bytes.Buffer
 	for c := body.FirstChild; c != nil; c = c.NextSibling {
 		if err := nethtml.Render(&buf, c); err != nil {
@@ -35,6 +37,38 @@ func Body(htmlPath string) (template.HTML, error) {
 		}
 	}
 	return template.HTML(buf.String()), nil
+}
+
+// wrapHeadingSections rewrites parent's children in place, moving each h2
+// element and the siblings that follow it, up to (but not including) the
+// next h2, into a new <div class="sticky"> wrapper. Siblings before the
+// first h2 are left untouched.
+func wrapHeadingSections(parent *nethtml.Node) {
+	for c := parent.FirstChild; c != nil; {
+		if c.Type != nethtml.ElementNode || c.Data != "h2" {
+			c = c.NextSibling
+			continue
+		}
+
+		section := &nethtml.Node{
+			Type: nethtml.ElementNode,
+			Data: "div",
+			Attr: []nethtml.Attribute{{Key: "class", Val: "sticky"}},
+		}
+		parent.InsertBefore(section, c)
+
+		next := c.NextSibling
+		parent.RemoveChild(c)
+		section.AppendChild(c)
+		for next != nil && !(next.Type == nethtml.ElementNode && next.Data == "h2") {
+			sibling := next.NextSibling
+			parent.RemoveChild(next)
+			section.AppendChild(next)
+			next = sibling
+		}
+
+		c = next
+	}
 }
 
 // findNode returns the first descendant of n (or n itself) with the given
