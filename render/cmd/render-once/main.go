@@ -15,33 +15,26 @@ func main() {
 	staticDir := flag.String("static", "./static", "directory of static assets copied as-is")
 	outDir := flag.String("out", "./public", "output directory")
 	templateDir := flag.String("template", "./render/template", "template directory")
+	blogJaDir := flag.String("blog-ja", "./blog/ja", "directory of dated Japanese posts")
+	pagesJaDir := flag.String("pages-ja", "./pages/ja", "directory of non-dated Japanese pages")
+	outJaDir := flag.String("out-ja", "./public/ja", "Japanese output directory")
+	templateJaDir := flag.String("template-ja", "./render/template-ja", "Japanese template directory")
 	flag.Parse()
 
-	entries, err := site.RenderBlog(*blogDir, *outDir, *templateDir)
+	enPaths, err := site.ContentPaths(*blogDir, *pagesDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "render-once: build posts: %v\n", err)
+		fmt.Fprintf(os.Stderr, "render-once: scan English content: %v\n", err)
+		os.Exit(1)
+	}
+	jaPaths, err := site.ContentPaths(*blogJaDir, *pagesJaDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: scan Japanese content: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err := site.WriteIndexes(*outDir, entries, *templateDir); err != nil {
-		fmt.Fprintf(os.Stderr, "render-once: write indexes: %v\n", err)
-		os.Exit(1)
-	}
-
-	if err := site.WriteAllPosts(*outDir, entries, *templateDir); err != nil {
-		fmt.Fprintf(os.Stderr, "render-once: write all-posts: %v\n", err)
-		os.Exit(1)
-	}
-
-	pageCount := 0
-	if _, err := os.Stat(*pagesDir); err == nil {
-		pageCount, err = site.RenderPages(*pagesDir, *outDir, *templateDir)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "render-once: render pages: %v\n", err)
-			os.Exit(1)
-		}
-	} else if !os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "render-once: stat pages dir: %v\n", err)
+	entries, pageCount, err := buildLocale(*blogDir, *pagesDir, *outDir, *templateDir, site.AltLang{Prefix: "/ja", Paths: jaPaths})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -55,15 +48,58 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := site.InjectRecentPosts(*outDir, entries, *templateDir); err != nil {
-		fmt.Fprintf(os.Stderr, "render-once: inject recent posts: %v\n", err)
-		os.Exit(1)
-	}
-
-	if err := site.InjectHeadStyles(*outDir); err != nil {
-		fmt.Fprintf(os.Stderr, "render-once: inject head styles: %v\n", err)
+	jaEntries, jaPageCount, err := buildLocale(*blogJaDir, *pagesJaDir, *outJaDir, *templateJaDir, site.AltLang{Prefix: "", Paths: enPaths})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "render-once: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("rendered %d post(s), %d page(s) into %s\n", len(entries), pageCount, *outDir)
+	fmt.Printf("rendered %d post(s), %d page(s) into %s\n", len(jaEntries), jaPageCount, *outJaDir)
+}
+
+// buildLocale runs the full build pipeline (posts, indexes, all-posts,
+// pages, recent-posts injection, head-style injection) for one locale.
+// blogDir and pagesDir are each optional: if a directory doesn't exist, that
+// step is skipped, so a locale can start out as pages-only (or even empty).
+func buildLocale(blogDir, pagesDir, outDir, templateDir string, alt site.AltLang) ([]site.Entry, int, error) {
+	var entries []site.Entry
+	if _, statErr := os.Stat(blogDir); statErr == nil {
+		var err error
+		entries, err = site.RenderBlog(blogDir, outDir, templateDir, alt)
+		if err != nil {
+			return nil, 0, fmt.Errorf("build posts: %w", err)
+		}
+	} else if !os.IsNotExist(statErr) {
+		return nil, 0, fmt.Errorf("stat blog dir: %w", statErr)
+	}
+
+	if err := site.WriteIndexes(outDir, entries, templateDir, alt); err != nil {
+		return nil, 0, fmt.Errorf("write indexes: %w", err)
+	}
+
+	if err := site.WriteAllPosts(outDir, entries, templateDir, alt); err != nil {
+		return nil, 0, fmt.Errorf("write all-posts: %w", err)
+	}
+
+	pageCount := 0
+	if _, statErr := os.Stat(pagesDir); statErr == nil {
+		var err error
+		pageCount, err = site.RenderPages(pagesDir, outDir, templateDir, alt)
+		if err != nil {
+			return nil, 0, fmt.Errorf("render pages: %w", err)
+		}
+	} else if !os.IsNotExist(statErr) {
+		return nil, 0, fmt.Errorf("stat pages dir: %w", statErr)
+	}
+
+	if err := site.InjectRecentPosts(outDir, entries, templateDir); err != nil {
+		return nil, 0, fmt.Errorf("inject recent posts: %w", err)
+	}
+
+	if err := site.InjectHeadStyles(outDir); err != nil {
+		return nil, 0, fmt.Errorf("inject head styles: %w", err)
+	}
+
+	return entries, pageCount, nil
 }

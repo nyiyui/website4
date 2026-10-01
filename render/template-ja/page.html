@@ -1,0 +1,15 @@
+{{define "title"}}{{.Title}}・柴田 謙{{end}}
+
+{{define "head"}}
+{{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
+{{if .Authors}}<meta name="authors" content="{{.Authors}}">{{end}}
+{{if .Keywords}}<meta name="keywords" content="{{.Keywords}}">{{end}}
+{{end}}
+
+{{define "content"}}
+<article>
+  {{.Content}}
+</article>
+{{end}}
+
+{{define "toc"}}{{if .TOC}}<nav class="toc" role="navigation" aria-label="Table of contents">{{.TOC}}</nav>{{end}}{{end}}

@@ -28,6 +28,7 @@ type PageData struct {
 	Date        time.Time
 	Content     template.HTML
 	TOC         template.HTML
+	AltLangURL  string
 }
 
 // Metadata pairs a post's Typst metadata with the URL it's served at.
@@ -38,8 +39,9 @@ type Metadata struct {
 
 // IndexData is the data rendered into index.html and keyword.html.
 type IndexData struct {
-	Title   string
-	Entries template.HTML
+	Title      string
+	Entries    template.HTML
+	AltLangURL string
 }
 
 // YearGroup is one year's worth of posts, pre-rendered into a <ul>.
@@ -50,8 +52,9 @@ type YearGroup struct {
 
 // AllPostsData is the data rendered into all-posts.html.
 type AllPostsData struct {
-	Title string
-	Years []YearGroup
+	Title      string
+	Years      []YearGroup
+	AltLangURL string
 }
 
 // Render well renders a single page :D

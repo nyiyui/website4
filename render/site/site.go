@@ -28,12 +28,67 @@ type Entry struct {
 	URL string
 }
 
+// AltLang describes the other locale, for computing cross-locale links (e.g.
+// a language switcher): Prefix is that locale's URL prefix (e.g. "" for
+// English, "/ja" for Japanese), and Paths is the set of relative output
+// paths (as returned by ContentPaths) that locale has content for.
+type AltLang struct {
+	Prefix string
+	Paths  map[string]bool
+}
+
+// altURL returns the URL of htmlRel's counterpart in the other locale. The
+// root index and the all-posts page always exist in both locales (they're
+// generated unconditionally), so they always link directly to each other;
+// any other path links directly only if a same-slug counterpart exists,
+// falling back to the other locale's homepage otherwise.
+func (a AltLang) altURL(htmlRel string) string {
+	switch htmlRel {
+	case "index.html":
+		return a.Prefix + "/"
+	case "all-posts.html":
+		return a.Prefix + "/all-posts.html"
+	}
+	if a.Paths[htmlRel] {
+		return a.Prefix + "/" + htmlRel
+	}
+	return a.Prefix + "/"
+}
+
+// ContentPaths returns the set of relative output paths (e.g. "2026/foo.html",
+// "projects/bar.html") that RenderBlog(blogDir, ...) and
+// RenderPages(pagesDir, ...) would produce. Either directory may not exist;
+// that just contributes no paths, rather than being an error.
+func ContentPaths(blogDir, pagesDir string) (map[string]bool, error) {
+	paths := make(map[string]bool)
+	for _, dir := range []string{blogDir, pagesDir} {
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return nil, err
+		}
+		found, err := findTypstFiles(dir)
+		if err != nil {
+			return nil, err
+		}
+		for _, typstPath := range found {
+			rel, err := filepath.Rel(dir, typstPath)
+			if err != nil {
+				return nil, err
+			}
+			htmlRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".html"
+			paths[filepath.ToSlash(htmlRel)] = true
+		}
+	}
+	return paths, nil
+}
+
 // RenderBlog renders every Typst file under blogDir, and puts the result in
 // outDir. It also returns a list of entries, with metadata about the post.
 //
 // It wraps each Typst document in templateDir/page.html, which should provide
 // the necessary layout and navigation.
-func RenderBlog(blogDir, outDir, templateDir string) ([]Entry, error) {
+func RenderBlog(blogDir, outDir, templateDir string, alt AltLang) ([]Entry, error) {
 	paths, err := findTypstFiles(blogDir)
 	if err != nil {
 		return nil, err
@@ -47,7 +102,7 @@ func RenderBlog(blogDir, outDir, templateDir string) ([]Entry, error) {
 		}
 		htmlRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".html"
 
-		meta, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "post.html")
+		meta, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "post.html", alt.altURL(filepath.ToSlash(htmlRel)))
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +115,7 @@ func RenderBlog(blogDir, outDir, templateDir string) ([]Entry, error) {
 //
 // It wraps each Typst document in templateDir/page.html, which should provide
 // the necessary layout and navigation.
-func RenderPages(dir, outDir, templateDir string) (int, error) {
+func RenderPages(dir, outDir, templateDir string, alt AltLang) (int, error) {
 	paths, err := findTypstFiles(dir)
 	if err != nil {
 		return 0, err
@@ -72,7 +127,7 @@ func RenderPages(dir, outDir, templateDir string) (int, error) {
 		}
 		htmlRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".html"
 
-		if _, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "page.html"); err != nil {
+		if _, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "page.html", alt.altURL(filepath.ToSlash(htmlRel))); err != nil {
 			return 0, err
 		}
 	}
@@ -107,7 +162,7 @@ func CopyStatic(dir, outDir string) error {
 // compile renders a Typst document (at typstPath) and wraps the document in
 // a template. The result is stored at htmlPath (directories are created as
 // necessary).
-func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metadata, error) {
+func compile(typstPath, htmlPath, templateDir, templateName, altLangURL string) (typst.Metadata, error) {
 	if err := os.MkdirAll(filepath.Dir(htmlPath), 0o755); err != nil {
 		return typst.Metadata{}, err
 	}
@@ -131,6 +186,7 @@ func compile(typstPath, htmlPath, templateDir, templateName string) (typst.Metad
 		Date:        meta.Date,
 		Content:     content,
 		TOC:         toc,
+		AltLangURL:  altLangURL,
 	})
 	if err != nil {
 		return typst.Metadata{}, err
@@ -194,8 +250,8 @@ const recentPostsLimit = 5
 // The index contains the recentPostsLimit-most recent posts.
 //
 // The index page is at index.html, and each keyword at keywords/<keyword>.html.
-func WriteIndexes(outDir string, entries []Entry, templateDir string) error {
-	root, err := renderIndex("index.html", "", entries, recentPostsLimit, templateDir)
+func WriteIndexes(outDir string, entries []Entry, templateDir string, alt AltLang) error {
+	root, err := renderIndex("index.html", "", entries, recentPostsLimit, templateDir, alt.altURL("index.html"))
 	if err != nil {
 		return err
 	}
@@ -217,7 +273,7 @@ func WriteIndexes(outDir string, entries []Entry, templateDir string) error {
 	}
 	for _, keyword := range keywords {
 		matched := withKeyword(entries, keyword)
-		page, err := renderIndex("keyword.html", keyword, matched, 0, templateDir)
+		page, err := renderIndex("keyword.html", keyword, matched, 0, templateDir, alt.altURL(filepath.ToSlash(filepath.Join("keywords", keyword+".html"))))
 		if err != nil {
 			return err
 		}
@@ -246,7 +302,7 @@ func withKeyword(entries []Entry, keyword string) []Entry {
 // WriteAllPosts renders a page listing every post, grouped by year (most
 // recent year first, most recent post first within each year), to
 // outDir/all-posts.html.
-func WriteAllPosts(outDir string, entries []Entry, templateDir string) error {
+func WriteAllPosts(outDir string, entries []Entry, templateDir string, alt AltLang) error {
 	yearGroups := groupByYear(entries)
 
 	years := make([]pagetemplate.YearGroup, len(yearGroups))
@@ -259,8 +315,9 @@ func WriteAllPosts(outDir string, entries []Entry, templateDir string) error {
 	}
 
 	page, err := pagetemplate.RenderAllPosts(templateDir, "all-posts.html", pagetemplate.AllPostsData{
-		Title: "All Posts",
-		Years: years,
+		Title:      "All Posts",
+		Years:      years,
+		AltLangURL: alt.altURL("all-posts.html"),
 	})
 	if err != nil {
 		return err
@@ -302,15 +359,16 @@ func groupByYear(entries []Entry) []yearGroup {
 
 // renderIndex renders the recentPostsFor(entries, limit) list under
 // templateName (e.g., "index.html" or "keyword.html") in templateDir.
-func renderIndex(templateName, title string, entries []Entry, limit int, templateDir string) ([]byte, error) {
+func renderIndex(templateName, title string, entries []Entry, limit int, templateDir, altLangURL string) ([]byte, error) {
 	list, err := pagetemplate.RenderEntries(templateDir, recentPostsFor(entries, limit))
 	if err != nil {
 		return nil, err
 	}
 
 	return pagetemplate.RenderIndex(templateDir, templateName, pagetemplate.IndexData{
-		Title:   title,
-		Entries: list,
+		Title:      title,
+		Entries:    list,
+		AltLangURL: altLangURL,
 	})
 }
 

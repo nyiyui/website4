@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{block "title" .}}柴田 謙{{end}}</title>
+    {{block "head" .}}{{end}}
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0 0 1em;
+      }
+      main, footer {
+        max-width: 40em;
+        margin: 0 auto;
+        padding: 0 1em;
+      }
+      .topbar {
+        background-color: #ffa8d470;
+      }
+      .topbar-inner {
+        max-width: 40em;
+        margin: 0 auto;
+        padding: 0.5em 1em;
+        font-family: system-ui, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      nav a {
+        margin-left: 1em;
+      }
+      nav a, nav a:visited {
+        color: #000;
+      }
+      @media (prefers-color-scheme: dark) {
+        nav a, nav a:visited {
+          color: #fff;
+        }
+      }
+      :target:not(main) {
+        text-decoration: underline;
+      }
+      h2 {
+        position: sticky;
+        top: 0;
+      }
+      h2, h3, h4, h5, h6 {
+        background-color: #ffa8d470;
+      }
+      nav.toc {
+        position: fixed;
+        top: 4em;
+        right: calc(50% + 22em);
+        width: 14em;
+        max-height: calc(100vh - 6em);
+        overflow-y: auto;
+        font-size: 0.9em;
+      }
+      nav.toc ul {
+        list-style: none;
+        padding-left: 0;
+      }
+      nav.toc li > ul {
+        padding-left: 1em;
+      }
+      nav.toc li {
+        text-indent: 2em hanging;
+      }
+      nav.toc a, nav.toc a:visited {
+        color: inherit;
+      }
+      @media (max-width: 75em) {
+        nav.toc {
+          display: none;
+        }
+      }
+      .skip-link {
+        position: absolute;
+        left: -999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+      .skip-link:focus {
+        position: fixed;
+        left: 1em;
+        top: 1em;
+        width: auto;
+        height: auto;
+        padding: 0.5em 1em;
+        background-color: #ffa8d4;
+        color: #000;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">コンテンツにスキップ</a>
+    <div class="topbar">
+      <div class="topbar-inner">
+        <header role="banner">
+          <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> 柴田 謙
+        </header>
+        <nav role="navigation">
+          <a href="/ja/">ホーム</a>
+          <a href="/ja/all-posts.html">ブログ</a>
+          <a href="/ja/projects">プロジェクト</a>
+          <a href="https://convind4.kiyuri.ca">ウィキ</a>
+          <a href="{{.AltLangURL}}" hreflang="en" lang="en">English</a>
+        </nav>
+      </div>
+    </div>
+    {{block "toc" .}}{{end}}
+    <main role="main" id="main-content">
+      {{block "content" .}}{{end}}
+    </main>
+    <footer role="contentinfo">
+      <a href="https://www.julianlbauer.com">←</a>
+      Bay Leaf Webring
+      <a href="https://dan.onl">→</a>
+    </footer>
+  </body>
+</html>

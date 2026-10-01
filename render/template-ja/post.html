@@ -1,0 +1,39 @@
+{{define "title"}}{{.Title}}・柴田 謙{{end}}
+
+{{define "head"}}
+{{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
+{{if .Authors}}<meta name="authors" content="{{.Authors}}">{{end}}
+{{if .Keywords}}<meta name="keywords" content="{{.Keywords}}">{{end}}
+<style>
+  aside {
+    padding-left: 1em;
+    margin-left: 0.5em;
+    box-shadow: inset 6px 0 5px -5px #137a7f;
+    color: #137a7f;
+  }
+  @media (prefers-color-scheme: dark) {
+    aside {
+      box-shadow: inset 6px 0 5px -5px #86cecb;
+      color: #86cecb;
+    }
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  pre {
+    overflow-x: scroll;
+  }
+</style>
+{{end}}
+
+{{define "content"}}
+<article>
+  <h1>{{.Title}}</h1>
+  <p>{{.Authors}}</p>
+  {{if not .Date.IsZero}}<p><time datetime="{{.Date.Format "2006-01-02"}}">{{.Date.Format "2006-Jan-02"}}</time></p>{{end}}
+  {{.Content}}
+</article>
+{{end}}
+
+{{define "toc"}}{{if .TOC}}<nav class="toc" role="navigation" aria-label="Table of contents">{{.TOC}}</nav>{{end}}{{end}}

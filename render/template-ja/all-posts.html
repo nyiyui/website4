@@ -1,0 +1,8 @@
+{{define "title"}}全ての投稿・柴田 謙{{end}}
+
+{{define "content"}}
+<h1>全ての投稿</h1>
+{{range .Years}}<h2>{{.Year}}</h2>
+{{.Entries}}
+{{end}}
+{{end}}
