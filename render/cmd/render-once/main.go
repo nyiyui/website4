@@ -9,6 +9,13 @@ import (
 	"render/site"
 )
 
+// siteName and siteNameJa are the site/author name shown in each locale's
+// Atom feed, matching the name hardcoded in that locale's base.html.
+const (
+	siteName   = "Ken Shibata"
+	siteNameJa = "柴田 謙"
+)
+
 func main() {
 	blogDir := flag.String("blog", "./blog", "directory of dated posts")
 	pagesDir := flag.String("pages", "./pages", "directory of non-dated posts")
@@ -19,6 +26,8 @@ func main() {
 	pagesJaDir := flag.String("pages-ja", "./pages/ja", "directory of non-dated Japanese pages")
 	outJaDir := flag.String("out-ja", "./public/ja", "Japanese output directory")
 	templateJaDir := flag.String("template-ja", "./render/template-ja", "Japanese template directory")
+	baseURL := flag.String("base-url", "https://kiyuri.ca/", "absolute base URL the site is served from, used for the Atom feed")
+	baseURLJa := flag.String("base-url-ja", "https://kiyuri.ca/ja/", "absolute base URL the Japanese site is served from, used for the Atom feed")
 	flag.Parse()
 
 	enPaths, err := site.ContentPaths(*blogDir, *pagesDir)
@@ -32,7 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	entries, pageCount, err := buildLocale(*blogDir, *pagesDir, *outDir, *templateDir, site.AltLang{Prefix: "/ja", Paths: jaPaths})
+	entries, pageCount, err := buildLocale(*blogDir, *pagesDir, *outDir, *templateDir, site.AltLang{Prefix: "/ja", Paths: jaPaths}, *baseURL, siteName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "render-once: %v\n", err)
 		os.Exit(1)
@@ -48,7 +57,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	jaEntries, jaPageCount, err := buildLocale(*blogJaDir, *pagesJaDir, *outJaDir, *templateJaDir, site.AltLang{Prefix: "", Paths: enPaths})
+	jaEntries, jaPageCount, err := buildLocale(*blogJaDir, *pagesJaDir, *outJaDir, *templateJaDir, site.AltLang{Prefix: "", Paths: enPaths}, *baseURLJa, siteNameJa)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "render-once: %v\n", err)
 		os.Exit(1)
@@ -58,11 +67,11 @@ func main() {
 	fmt.Printf("rendered %d post(s), %d page(s) into %s\n", len(jaEntries), jaPageCount, *outJaDir)
 }
 
-// buildLocale runs the full build pipeline (posts, indexes, all-posts,
+// buildLocale runs the full build pipeline (posts, feed, indexes, all-posts,
 // pages, recent-posts injection, head-style injection) for one locale.
 // blogDir and pagesDir are each optional: if a directory doesn't exist, that
 // step is skipped, so a locale can start out as pages-only (or even empty).
-func buildLocale(blogDir, pagesDir, outDir, templateDir string, alt site.AltLang) ([]site.Entry, int, error) {
+func buildLocale(blogDir, pagesDir, outDir, templateDir string, alt site.AltLang, baseURL, siteName string) ([]site.Entry, int, error) {
 	var entries []site.Entry
 	if _, statErr := os.Stat(blogDir); statErr == nil {
 		var err error
@@ -72,6 +81,10 @@ func buildLocale(blogDir, pagesDir, outDir, templateDir string, alt site.AltLang
 		}
 	} else if !os.IsNotExist(statErr) {
 		return nil, 0, fmt.Errorf("stat blog dir: %w", statErr)
+	}
+
+	if err := site.WriteFeed(outDir, entries, baseURL, siteName); err != nil {
+		return nil, 0, fmt.Errorf("write feed: %w", err)
 	}
 
 	if err := site.WriteIndexes(outDir, entries, templateDir, alt); err != nil {

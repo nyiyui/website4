@@ -8,6 +8,7 @@ package site
 
 import (
 	"bytes"
+	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -22,10 +23,12 @@ import (
 	"render/typst"
 )
 
-// Entry pairs a compiled post's metadata with the URL it's served at.
+// Entry pairs a compiled post's metadata with the URL it's served at and its
+// rendered body content (used by the Atom feed to avoid recompiling).
 type Entry struct {
 	typst.Metadata
-	URL string
+	URL     string
+	Content template.HTML
 }
 
 // AltLang describes the other locale, for computing cross-locale links (e.g.
@@ -102,11 +105,11 @@ func RenderBlog(blogDir, outDir, templateDir string, alt AltLang) ([]Entry, erro
 		}
 		htmlRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".html"
 
-		meta, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "post.html", alt.altURL(filepath.ToSlash(htmlRel)))
+		meta, content, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "post.html", alt.altURL(filepath.ToSlash(htmlRel)))
 		if err != nil {
 			return nil, err
 		}
-		entries = append(entries, Entry{Metadata: meta, URL: "/" + filepath.ToSlash(htmlRel)})
+		entries = append(entries, Entry{Metadata: meta, URL: "/" + filepath.ToSlash(htmlRel), Content: content})
 	}
 	return entries, nil
 }
@@ -127,7 +130,7 @@ func RenderPages(dir, outDir, templateDir string, alt AltLang) (int, error) {
 		}
 		htmlRel := strings.TrimSuffix(rel, filepath.Ext(rel)) + ".html"
 
-		if _, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "page.html", alt.altURL(filepath.ToSlash(htmlRel))); err != nil {
+		if _, _, err := compile(typstPath, filepath.Join(outDir, htmlRel), templateDir, "page.html", alt.altURL(filepath.ToSlash(htmlRel))); err != nil {
 			return 0, err
 		}
 	}
@@ -162,20 +165,20 @@ func CopyStatic(dir, outDir string) error {
 // compile renders a Typst document (at typstPath) and wraps the document in
 // a template. The result is stored at htmlPath (directories are created as
 // necessary).
-func compile(typstPath, htmlPath, templateDir, templateName, altLangURL string) (typst.Metadata, error) {
+func compile(typstPath, htmlPath, templateDir, templateName, altLangURL string) (typst.Metadata, template.HTML, error) {
 	if err := os.MkdirAll(filepath.Dir(htmlPath), 0o755); err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 	if err := typst.CompileHTML(typstPath, htmlPath); err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 	meta, err := typst.GetMetadata(typstPath, htmlPath)
 	if err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 	content, toc, err := typst.Body(htmlPath)
 	if err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 
 	out, err := pagetemplate.Render(templateDir, templateName, pagetemplate.PageData{
@@ -189,13 +192,13 @@ func compile(typstPath, htmlPath, templateDir, templateName, altLangURL string) 
 		AltLangURL:  altLangURL,
 	})
 	if err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 	if err := os.WriteFile(htmlPath, out, 0o644); err != nil {
-		return typst.Metadata{}, err
+		return typst.Metadata{}, "", err
 	}
 
-	return meta, nil
+	return meta, content, nil
 }
 
 // findTypstFiles returns the path of every .typ file under dir.
