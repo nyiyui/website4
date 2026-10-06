@@ -1,10 +1,12 @@
 #set document(
-  title: [柴田謙のサイト（日本語）],
+  title: [柴田謙のウェブサイト],
   date: datetime(year: 2026, month: 10, day: 1)
 )
 
-このページは日本語版のホームページです。翻訳作業中のため、内容はまだ準備中です。
-#html.span(role: "img", aria-label: "happily waving hello")[ヾ(^▽^)ﾉ]
+**柴田 謙**のウェブサイトへようこそ！
+#html.span(role: "img", aria-label: "ハッピーなひとの挨拶")[ヾ(^▽^)ﾉ]
+
+
 
 = 最近の投稿
 // The below element is replaced w/ the actual recent posts fragment at build time.
