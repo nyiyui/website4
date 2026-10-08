@@ -23,7 +23,8 @@ More importantly, the device's build quality is not great. It's bendy and a thin
 #html.elem("picture")[
   #html.elem("source", attrs: (srcset: ("/2026/quaderno-disas.avif"), type: "image/avif"))
   #html.elem("source", attrs: (srcset: ("/2026/quaderno-disas.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-disas.jpg", alt: "Taking off the back (plastic) cover off the Quaderno; two credit cards on the top corners of the image (the tablet is flipped upside down). The a piece of plastic around the USB-C port is broken.", width: 1024, height: 1180)
+  #html.img(src: "/2026/quaderno-disas.jpg", alt: "Taking off the back (plastic) cover off the Quaderno; two credit cards on the top corners of the image (the tablet is flipped upside down). The a piece of plastic around the USB-C port is broken.", width: 1024, height: 1180, fetchpriority: "high")
+  // fetchpriority=high since it's likely to be the first image
 ]
 
 Opening the Quaderno up seems quite scary (given how frail it feels), but it's actually quite easy to losslessly disassemble.
