@@ -15,13 +15,16 @@
           pname = "render";
           inherit version;
           src = ./render;
-          subPackages = [ "cmd/render-once" ];
+          subPackages = [ "cmd/render-once" "cmd/imgprep" ];
           vendorHash = "sha256-mhgJ182qAKMpmBOfZ0DK/is9a8G9PFQnUjKg1ARwG7w=";
 
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postInstall = ''
             wrapProgram $out/bin/render-once \
-              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.typst ]}
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.typst ]} \
+              --set TYPST_FONT_PATHS ${pkgs.atkinson-hyperlegible}/share/fonts
+            wrapProgram $out/bin/imgprep \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.libwebp pkgs.libavif ]}
           '';
 
           meta.mainProgram = "render-once";
@@ -58,11 +61,16 @@
           packages = with pkgs; [
             typst
             tinymist
+            atkinson-hyperlegible
 
             go
             gopls
+
+            libwebp
+            libavif
           ];
           TYPST_FEATURES = "html";
+          TYPST_FONT_PATHS = "${pkgs.atkinson-hyperlegible}/share/fonts";
         };
       });
 }
