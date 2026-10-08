@@ -26,7 +26,7 @@ More importantly, the device's build quality is not great. It's bendy and a thin
   #html.img(src: "/2026/quaderno-disas.jpg", alt: "Taking off the back (plastic) cover off the Quaderno; two credit cards on the top corners of the image (the tablet is flipped upside down). The a piece of plastic around the USB-C port is broken.", width: 1024, height: 1180)
 ]
 
-Opening the Quaderno up seems quite scary (given how frail it feelr), but it's actually quite easy to losslessly disassemble.
+Opening the Quaderno up seems quite scary (given how frail it feels), but it's actually quite easy to losslessly disassemble.
 Slide in a couple credit cards (three to be safe) in the bottom corners (and middle).
 Then, making sure that the entire bottom few centimetres of the plastic are out of the way, smear the display down and off the plastic cover.
 After a few centimetres more, the two halves should come apart.
@@ -70,7 +70,7 @@ Initially, I placed the coils on the battery. However, it didn't charge well (i.
 
 I found a better spot, above the battery, and it fortunately didn't conflict with the plastic fins (or the plastic cover, probably for structural integrity).
 I realized while writing that putting the coil against the diecast is not optimal. While testing the setup, I found it gets quite hot and it stops charging (!) after half an hour or so—presumably due do some thermal cutoff.
-InsteadI put the coil against the plastic case so that it's close as possible to the charging coil, hopefully reducing thermal loss.
+Instead, I put the coil against the plastic case so that it's close as possible to the charging coil, hopefully reducing thermal loss.
 
 #html.elem("picture")[
   #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-final2.avif"), type: "image/avif"))
