@@ -75,6 +75,7 @@
           buildPhase = ''
             runHook preBuild
             export HOME="$TMPDIR"
+            imgprep -dir ./static
             render-once
             runHook postBuild
           '';
