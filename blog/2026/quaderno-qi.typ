@@ -6,7 +6,7 @@
   date: datetime(year: 2026, month: 10, day: 7),
 )
 
-== Some Motivation
+= Some Motivation
 
 I have a #link("https://www.fmworld.net/digital-paper/gen2/product.html")[Fujitsu Quaderno A4 (Gen.2)] e-reader that I've been using for a few years now.
 It's light and thin enough that it feels like ten sheets of cardstock and has a paper-like textured screen.
@@ -18,7 +18,7 @@ I usually use up the battery in a few days. That is, not a constant number of da
 Having to unlock it and see how much charge it's at or having to charge it every night is cumbersome not counting the following reason.
 More importantly, the device's build quality is not great. It's bendy and a thin plastic piece around the USB-C port broke off.
 
-== Disassembly
+= Disassembly
 
 #html.elem("picture")[
   #html.elem("source", attrs: (srcset: ("/2026/quaderno-disas.avif"), type: "image/avif"))
@@ -47,7 +47,7 @@ The electronics are all on the display side.
   As another side note, the two modules besides the I/O board are the Wi-Fi and Bluetooth antennas, and the NFC antenna is to the left of that.
 ]
 
-== Adding the Receiver Coil
+= Adding the Receiver Coil
 
 I got #link("https://www.amazon.com/dp/B08RDMRZL5")[a set of Qi receiver coils] with a PCB that outputs DC 5V.
 I sacrificed a USB-A to USB-C cable, and took the power lines and soldered it to the coils'.
@@ -94,7 +94,7 @@ Now, time to close the cover (for real this time)!
 // TODO: 実際に使ってみてどう？
 // TODO: split into another post on why big paper e-readers are better
 
-== Charging Performance
+= Charging Performance
 
 I left it on the charger overnight and jotted down the battery percentage whenever I happened to glance at it. Charging is fairly linear, at roughly 13 percentage points an hour, and it topped out at 100% a bit under four hours after starting at 51%.
 
