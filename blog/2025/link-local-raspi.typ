@@ -1,3 +1,5 @@
+#import "@local/website4:0.1.0": picture
+
 #set document(
   title: [Link-Local Connection to Raspberry Pi],
 	author: ("Ken Shibata"),
@@ -25,11 +27,7 @@ nmcli connection add type ethernet con-name "Link-Local Ethernet" ifname eth0 ip
 
 Note: If you're running the Pi headless, you should specify autoconnect yes, so NetworkManager retries without any interaction.
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2025/nmtui-ll.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2025/nmtui-ll.webp"), type: "image/webp"))
-  #html.img(src: "/2025/nmtui-ll.png", alt: "a new Ethernet connection profile with default settings, except IPv4 set to Link-Local and IPv6 set to Ignore", width: 1000, height: 563)
-]
+#picture("/2025/nmtui-ll", "a new Ethernet connection profile with default settings, except IPv4 set to Link-Local and IPv6 set to Ignore", width: 1000, height: 563, ext: "png")
 
 
 Make sure there are no other (competing) Ethernet connections (or they have a lower priority) (nmcli connection | grep -E 'TYPE|ethernet' or by using the TUI).

@@ -1,3 +1,5 @@
+#import "@local/website4:0.1.0": picture
+
 #set document(
   title: [Blazingly Fast GT VPN],
 	author: ("Ken Shibata"),
@@ -137,11 +139,7 @@ To set it up, install the feature and make a container for the VPN. Then, in the
 Once that the container is set up, you can to go any website (e.g., OnDemand) then press the extension to "always open this site in GT VPN."
 This will set the site to always open with the GT VPN container, and so will always use the proxy!
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/multi-account-containers-set-proxy.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/multi-account-containers-set-proxy.webp"), type: "image/webp"))
-  #html.img(src: "/2026/multi-account-containers-set-proxy.png", alt: "Configuration dialog with the proxy settings button, the second-to-last option, selected.", width: 368, height: 607)
-]
+#picture("/2026/multi-account-containers-set-proxy", "Configuration dialog with the proxy settings button, the second-to-last option, selected.", width: 368, height: 607, ext: "png")
 
 = Happy Blazingly Fast Connecting!!!
 

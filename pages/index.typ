@@ -1,3 +1,5 @@
+#import "@local/website4:0.1.0": picture
+
 #set document(
   title: [Ken Shibata's Corner of The Internet],
   date: datetime(year: 2026, month: 9, day: 23)
@@ -36,17 +38,11 @@ My hobbies include model trains and riding railways.
   }
 ")
 
-#let ribbon-photo(src, alt) = html.elem("picture")[
-  #html.elem("source", attrs: (srcset: src + ".avif", type: "image/avif"))
-  #html.elem("source", attrs: (srcset: src + ".webp", type: "image/webp"))
-  #html.elem("img", attrs: (src: src + ".jpg", alt: alt, width: "200", height: "200"))
-]
-
 #html.elem("div", attrs: (class: "ribbon"))[
-  #ribbon-photo("/photos/saigoyama", "A building with two ground floors, one two floors above the other.")
-  #ribbon-photo("/photos/big_chute", "The only marine railway in use on Turtle Island!")
-  #ribbon-photo("/photos/tobu_20400", "Commuter car, with one door hole plugged. You can always fix things later!")
-  #ribbon-photo("/photos/hiyoshi", "Floor markings tell you to walk on the right, bus used to say left…")
+  #picture("/photos/saigoyama", "A building with two ground floors, one two floors above the other.", width: 200, height: 200)
+  #picture("/photos/big_chute", "The only marine railway in use on Turtle Island!", width: 200, height: 200)
+  #picture("/photos/tobu_20400", "Commuter car, with one door hole plugged. You can always fix things later!", width: 200, height: 200)
+  #picture("/photos/hiyoshi", "Floor markings tell you to walk on the right, bus used to say left…", width: 200, height: 200)
 ]
 
 // A complete description is on my #link("./cv")[online CV].

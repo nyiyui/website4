@@ -1,0 +1,6 @@
+[package]
+name = "website4"
+version = "0.1.0"
+entrypoint = "lib.typ"
+authors = ["Ken Shibata"]
+description = "Shared helpers for kiyuri.ca's .typ pages and posts."

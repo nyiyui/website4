@@ -43,6 +43,15 @@
           }
         ];
 
+        # Local (non-@preview) Typst packages, importable as e.g.
+        # "@local/website4:0.1.0" from any .typ file via TYPST_PACKAGE_PATH.
+        typstLocalPackages = pkgs.linkFarm "typst-local-packages" [
+          {
+            name = "local/website4/0.1.0";
+            path = ./typst-packages/website4/0.1.0;
+          }
+        ];
+
         # The render-once Go binary.
         render = pkgs.buildGoModule {
           pname = "render";
@@ -56,7 +65,8 @@
             wrapProgram $out/bin/render-once \
               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.typst ]} \
               --set TYPST_FONT_PATHS ${pkgs.atkinson-hyperlegible}/share/fonts \
-              --set TYPST_PACKAGE_CACHE_PATH ${typstPackageCache}
+              --set TYPST_PACKAGE_CACHE_PATH ${typstPackageCache} \
+              --set TYPST_PACKAGE_PATH ${typstLocalPackages}
             wrapProgram $out/bin/imgprep \
               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.libwebp pkgs.libavif ]}
           '';
@@ -107,6 +117,7 @@
           TYPST_FEATURES = "html";
           TYPST_FONT_PATHS = "${pkgs.atkinson-hyperlegible}/share/fonts";
           TYPST_PACKAGE_CACHE_PATH = "${typstPackageCache}";
+          TYPST_PACKAGE_PATH = "${typstLocalPackages}";
         };
       });
 }

@@ -1,3 +1,5 @@
+#import "@local/website4:0.1.0": picture
+
 #set document(
   title: [I added Wireless Charging to my A4 E-Reader],
   author: ("Ken Shibata"),
@@ -20,12 +22,8 @@ More importantly, the device's build quality is not great. It's bendy and a thin
 
 = Disassembly
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-disas.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-disas.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-disas.jpg", alt: "Taking off the back (plastic) cover off the Quaderno; two credit cards on the top corners of the image (the tablet is flipped upside down). The a piece of plastic around the USB-C port is broken.", width: 1024, height: 1180, fetchpriority: "high")
-  // fetchpriority=high since it's likely to be the first image
-]
+// fetchpriority=high since it's likely to be the first image
+#picture("/2026/quaderno-disas", "Taking off the back (plastic) cover off the Quaderno; two credit cards on the top corners of the image (the tablet is flipped upside down). The a piece of plastic around the USB-C port is broken.", width: 1024, height: 1180, fetchpriority: "high")
 
 Opening the Quaderno up seems quite scary (given how frail it feels), but it's actually quite easy to losslessly disassemble.
 Slide in a couple credit cards (three to be safe) in the bottom corners (and middle).
@@ -34,11 +32,7 @@ After a few centimetres more, the two halves should come apart.
 
 The electronics are all on the display side.
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-internals.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-internals.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-internals.jpg", alt: "The internals! There is a mainboard, I/O board (good for repair!), reemingly two batteries, and a bunch of cables. The display side is diecast and the back cover ir basically all white plastic.", width: 1024, height: 663)
-]
+#picture("/2026/quaderno-internals", "The internals! There is a mainboard, I/O board (good for repair!), reemingly two batteries, and a bunch of cables. The display side is diecast and the back cover ir basically all white plastic.", width: 1024, height: 663)
 
 #html.elem("aside")[
   I found it interesting that it seems to have two batteries (the one annotated in cyan and the big and obvious one). Not sure what's it's used for…
@@ -53,31 +47,18 @@ The electronics are all on the display side.
 I got #link("https://www.amazon.com/dp/B08RDMRZL5")[a set of Qi receiver coils] with a PCB that outputs DC 5V.
 I sacrificed a USB-A to USB-C cable, and took the power lines and soldered it to the coils'.
 
-// quaderno-coil-battery.avif
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-battery.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-battery.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-coil-battery.jpg", alt: "The diecast part of the tablet, with the coil on top of the battery. It's all held together with masking tape…masking tape fixes everything!", width: 1024, height: 1497)
-]
+#picture("/2026/quaderno-coil-battery", "The diecast part of the tablet, with the coil on top of the battery. It's all held together with masking tape…masking tape fixes everything!", width: 1024, height: 1497)
 
 
 Initially, I placed the coils on the battery. However, it didn't charge well (i.e., even with the coil as close as it could be). Also…turns out the battery was the thickest part of the internals, and the case didn't close…good thing I didn't force the case closed!
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-final.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-final.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-coil-final.jpg", alt: "The diecast part of the tablet, with the coil nestled between the two batteries (above the larger battery, to the right of the smaller one, and below the I/O board). Also it's masking taped on there but we don't talk about that.", width: 1024, height: 1366)
-]
+#picture("/2026/quaderno-coil-final", "The diecast part of the tablet, with the coil nestled between the two batteries (above the larger battery, to the right of the smaller one, and below the I/O board). Also it's masking taped on there but we don't talk about that.", width: 1024, height: 1366)
 
 I found a better spot, above the battery, and it fortunately didn't conflict with the plastic fins (or the plastic cover, probably for structural integrity).
 I realized while writing that putting the coil against the diecast is not optimal. While testing the setup, I found it gets quite hot and it stops charging (!) after half an hour or so—presumably due do some thermal cutoff.
 Instead, I put the coil against the plastic case so that it's close as possible to the charging coil, hopefully reducing thermal loss.
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-final2.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-coil-final2.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-coil-final2.jpg", alt: "The coil attached to the plastic instead", width: 1024, height: 1364)
-]
+#picture("/2026/quaderno-coil-final2", "The coil attached to the plastic instead", width: 1024, height: 1364)
 
 #html.elem("aside")[
   Although the best result is to have all of the electronics fit inside the case, I wasn't totally on board with the placement and didn't have a solder rework station handy. The plan is to test this out for a few months first.
@@ -86,11 +67,7 @@ Instead, I put the coil against the plastic case so that it's close as possible 
 
 Now, time to close the cover (for real this time)!
 
-#html.elem("picture")[
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-charging.avif"), type: "image/avif"))
-  #html.elem("source", attrs: (srcset: ("/2026/quaderno-charging.webp"), type: "image/webp"))
-  #html.img(src: "/2026/quaderno-charging.jpg", alt: "Close up with the charging inicator on (red LED) and the Qi charger on the tablet, flipped down.", width: 1024, height: 1024)
-]
+#picture("/2026/quaderno-charging", "Close up with the charging inicator on (red LED) and the Qi charger on the tablet, flipped down.", width: 1024, height: 1024)
 
 // TODO: 実際に使ってみてどう？
 // TODO: split into another post on why big paper e-readers are better
