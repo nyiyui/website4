@@ -46,22 +46,13 @@ jobs:
 
       - name: Build comment body
         run: |
+          ls -la .lighthouseci
           {
             echo "### Lighthouse CI results"
             echo
-            jq -r --slurpfile links .lighthouseci/links.json '
-              ($links[0]) as $l |
-              "| URL | Performance | Accessibility | Best Practices | SEO | Report |",
-              "| --- | --- | --- | --- | --- | --- |",
-              (.[] | select(.isRepresentativeRun) |
-                "| " + .url
-                + " | " + ((.summary.performance * 100) | round | tostring)
-                + " | " + ((.summary.accessibility * 100) | round | tostring)
-                + " | " + ((.summary["best-practices"] * 100) | round | tostring)
-                + " | " + ((.summary.seo * 100) | round | tostring)
-                + " | [report](" + ($l[.url] // "") + ") |"
-              )
-            ' .lighthouseci/manifest.json
+            echo "| URL | Report |"
+            echo "| --- | --- |"
+            jq -r 'to_entries[] | "| " + .key + " | [report](" + .value + ") |"' .lighthouseci/links.json
           } > comment.md
           cat comment.md
 
