@@ -68,7 +68,7 @@
               --set TYPST_PACKAGE_CACHE_PATH ${typstPackageCache} \
               --set TYPST_PACKAGE_PATH ${typstLocalPackages}
             wrapProgram $out/bin/imgprep \
-              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.libwebp pkgs.libavif ]}
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.libwebp pkgs.libavif pkgs.libjxl.bin ]}
           '';
 
           meta.mainProgram = "render-once";
@@ -113,6 +113,7 @@
 
             libwebp
             libavif
+            libjxl.bin
           ];
           TYPST_FEATURES = "html";
           TYPST_FONT_PATHS = "${pkgs.atkinson-hyperlegible}/share/fonts";

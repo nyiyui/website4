@@ -1,12 +1,13 @@
-// Command imgprep ensures every image in a directory has a PNG, WebP, and
-// AVIF sibling, generating only whichever of those three are missing.
+// Command imgprep ensures every image in a directory has a PNG, WebP, AVIF,
+// and JXL sibling, generating only whichever of those four are missing.
 //
 // Images are grouped by their path without extension (e.g. "2026/foo.jpg"
 // and "2026/foo.webp" belong to the same group "2026/foo"). For each group,
 // the highest-fidelity file already present (preferring PNG, then
-// JPEG/JPG, then WebP, then AVIF) is used as the source for anything
-// missing. WebP and AVIF sources are decoded to a temporary PNG first,
-// since the encoders used here don't read each other's formats directly.
+// JPEG/JPG, then WebP, then AVIF, then JXL) is used as the source for
+// anything missing. WebP, AVIF, and JXL sources are decoded to a temporary
+// PNG first, since the encoders used here don't read each other's formats
+// directly.
 package main
 
 import (
@@ -26,12 +27,13 @@ const (
 	extPNG  = ".png"
 	extWebP = ".webp"
 	extAVIF = ".avif"
+	extJXL  = ".jxl"
 )
 
 // group holds the path (if any) of each format already present for one
 // image, keyed by its path without extension.
 type group struct {
-	png, jpg, webp, avif string
+	png, jpg, webp, avif, jxl string
 }
 
 func main() {
@@ -65,6 +67,8 @@ func run(dir string) error {
 			g.webp = path
 		case extAVIF:
 			g.avif = path
+		case extJXL:
+			g.jxl = path
 		default:
 			return nil
 		}
@@ -89,10 +93,10 @@ func run(dir string) error {
 	return nil
 }
 
-// processGroup fills in whichever of png/webp/avif are missing from g,
+// processGroup fills in whichever of png/webp/avif/jxl are missing from g,
 // deriving them from the best already-present format.
 func processGroup(key string, g *group) error {
-	if g.png != "" && g.webp != "" && g.avif != "" {
+	if g.png != "" && g.webp != "" && g.avif != "" && g.jxl != "" {
 		return nil
 	}
 
@@ -152,6 +156,18 @@ func processGroup(key string, g *group) error {
 		g.avif = dst
 	}
 
+	if g.jxl == "" {
+		dst := key + extJXL
+		if err := refuseIfExists(dst); err != nil {
+			return err
+		}
+		if err := runTool("cjxl", direct, dst); err != nil {
+			return fmt.Errorf("derive %s: %w", dst, err)
+		}
+		fmt.Printf("generated %s (from %s)\n", dst, direct)
+		g.jxl = dst
+	}
+
 	return nil
 }
 
@@ -168,11 +184,11 @@ func refuseIfExists(path string) error {
 	return nil
 }
 
-// directSource returns a path that avifenc/cwebp can read natively (a PNG
-// or JPEG), plus origSource, the actual file that content came from (for
-// logging). If the only format present is WebP or AVIF, it's decoded to a
-// temporary PNG first, and isTemp reports that the caller owns cleaning it
-// up (or consuming it as the group's missing PNG).
+// directSource returns a path that avifenc/cwebp/cjxl can read natively (a
+// PNG or JPEG), plus origSource, the actual file that content came from (for
+// logging). If the only format present is WebP, AVIF, or JXL, it's decoded
+// to a temporary PNG first, and isTemp reports that the caller owns cleaning
+// it up (or consuming it as the group's missing PNG).
 func directSource(key string, g *group) (path, origSource string, isTemp bool, err error) {
 	switch {
 	case g.png != "":
@@ -191,6 +207,12 @@ func directSource(key string, g *group) (path, origSource string, isTemp bool, e
 			return "", "", false, err
 		}
 		return tmp, g.avif, true, nil
+	case g.jxl != "":
+		tmp := key + ".imgprep-tmp.png"
+		if err := runTool("djxl", g.jxl, tmp); err != nil {
+			return "", "", false, err
+		}
+		return tmp, g.jxl, true, nil
 	default:
 		return "", "", false, fmt.Errorf("no source image found")
 	}
