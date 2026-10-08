@@ -98,7 +98,7 @@ Now, time to close the cover (for real this time)!
 
 I left it on the charger overnight and jotted down the battery percentage whenever I happened to glance at it. Charging is fairly linear, at roughly 13 percentage points an hour, and it topped out at 100% a bit under four hours after starting at 51%.
 
-#import "@preview/cetz:0.4.1"
+#import "@preview/cetz:0.4.0"
 #import "@preview/cetz-plot:0.1.2": plot
 
 #let readings = (
