@@ -14,46 +14,88 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: cachix/install-nix-action@v27
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - name: Build site
-        run: nix build .#site
+      - name: Determine base commit
+        id: base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            BASE_SHA="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
+          echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
-      - name: Copy build output
-        run: cp -rL result www
+      - name: Build current site
+        run: |
+          nix build .#site
+          cp -rL result www
+
+      - name: Build base site
+        if: steps.base.outputs.sha != ''
+        run: |
+          git checkout "${{ steps.base.outputs.sha }}"
+          nix build .#site
+          cp -rL result www-base
+          git checkout "${{ github.sha }}"
+
+      - name: Discover changed URLs
+        id: urls
+        run: |
+          (cd www && find . -type f -name '*.html') | sed 's#^\.##' | sort > current.txt
+
+          > changed.txt
+          while IFS= read -r f; do
+            if [ ! -d www-base ] || [ ! -f "www-base${f}" ] || ! cmp -s "www-base${f}" "www${f}"; then
+              echo "$f" >> changed.txt
+            fi
+          done < current.txt
+
+          jq -Rn '[inputs]' changed.txt > changed.json
+          jq --slurpfile urls changed.json '.ci.collect.url = $urls[0]' lighthouserc.json > lighthouserc.tmp.json
+          mv lighthouserc.tmp.json lighthouserc.json
+          cat lighthouserc.json
+
+          count=$(wc -l < changed.txt)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
+        if: steps.urls.outputs.count != '0'
         with:
           node-version: 20
 
       - name: Install Lighthouse CI
+        if: steps.urls.outputs.count != '0'
         run: npm install -g @lhci/cli
 
-      - name: Discover URLs
-        run: |
-          find www -type f -name '*.html' | sed 's#^www##' | sort > urls.txt
-          jq -Rn '[inputs]' urls.txt > urls.json
-          jq --slurpfile urls urls.json '.ci.collect.url = $urls[0]' lighthouserc.json > lighthouserc.tmp.json
-          mv lighthouserc.tmp.json lighthouserc.json
-          cat lighthouserc.json
-
       - name: Run Lighthouse CI
+        if: steps.urls.outputs.count != '0'
         run: lhci autorun
 
       - name: Build comment body
         run: |
-          ls -la .lighthouseci
-          {
-            echo "### Lighthouse CI results"
-            echo
-            echo "| URL | Report |"
-            echo "| --- | --- |"
-            jq -r 'to_entries[] | "| " + .key + " | [report](" + .value + ") |"' .lighthouseci/links.json
-          } > comment.md
+          if [ "${{ steps.urls.outputs.count }}" = "0" ]; then
+            echo "### Lighthouse CI results" > comment.md
+            echo >> comment.md
+            echo "No page content changed in this commit; skipped Lighthouse CI." >> comment.md
+          else
+            {
+              echo "### Lighthouse CI results"
+              echo
+              echo "| URL | Report |"
+              echo "| --- | --- |"
+              jq -r 'to_entries[] | "| " + .key + " | [report](" + .value + ") |"' .lighthouseci/links.json
+            } > comment.md
+          fi
           cat comment.md
 
       - name: Post commit comment
