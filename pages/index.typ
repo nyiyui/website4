@@ -63,6 +63,8 @@ Email: #link("mailto:ken.shibata@gatech.edu") or same username but this domain i
 
 ORCID: #link("https://orcid.org/0009-0000-4393-9964")[0009-0000-4393-9964]
 
+I'm also on #link("https://www.linkedin.com/in/ken-shibata")[LinkedIn].
+
 = Why PL and VR, two seemingly unrelated fields? <pl-and-vr>
 I grew up surrounded by computers and spend a good chunk of my time
 understanding them through experimentation and reading as I found joy in
