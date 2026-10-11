@@ -3,7 +3,7 @@
 #set document(
   title: [Link-Local Connection to Raspberry Pi],
 	author: ("Ken Shibata"),
-	keywords: ("NetworkManager"),
+	keywords: ("Networking"),
   date: datetime(year: 2025, month: 2, day: 24),
 )
 

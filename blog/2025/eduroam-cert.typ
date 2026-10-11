@@ -2,7 +2,7 @@
   title: [How to Connect to GT Eduroam with a Client Certificate],
 	author: ("Ken Shibata"),
 	description: [How to configure NetworkManager to connect to Georgia Tech eduroam with the new certificate-based authentication.],
-	keywords: ("eduroam", "NetworkManager", "Georgia Tech"),
+	keywords: ("eduroam", "Networking", "Georgia Tech"),
   date: datetime(year: 2025, month: 7, day: 20)
 )
 
