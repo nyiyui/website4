@@ -18,6 +18,8 @@ A few notes:
 
 == On The Raspberry Pi
 
+**Note:** If you ever try to use USB Ethernet with g_ether on a Raspberry Pi, let it be known that you must reload the kernel module after boot otherwise sometimes it will just get stuck and only send but not receive… -Thanks to Sam!
+
 Make a new connection profile that uses Link-Local configuration for IPv4.
 You can either do this using the `nmtui` terminal interface, or through `nmcli`:
 
