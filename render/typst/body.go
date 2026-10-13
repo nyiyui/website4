@@ -30,6 +30,7 @@ func Body(htmlPath string) (content template.HTML, toc template.HTML, err error)
 	}
 
 	AssignHeadingIDs(body)
+	fixFootnoteRoles(body)
 
 	var flat []TocEntry
 	collectHeadings(body, &flat)
@@ -78,6 +79,31 @@ func wrapHeadingSections(parent *nethtml.Node) {
 		}
 
 		c = next
+	}
+}
+
+// fixFootnoteRoles moves Typst's role="doc-noteref"/"doc-backlink" from the
+// <sup> elements it wraps footnote markers in onto the <a> inside them.
+// Both roles inherit from the ARIA "link" role, which only interactive
+// elements like <a> may bear; <sup> itself isn't an allowed host for them.
+func fixFootnoteRoles(n *nethtml.Node) {
+	if n.Type == nethtml.ElementNode && n.Data == "sup" {
+		for i, a := range n.Attr {
+			if a.Key != "role" || (a.Val != "doc-noteref" && a.Val != "doc-backlink") {
+				continue
+			}
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				if c.Type == nethtml.ElementNode && c.Data == "a" {
+					c.Attr = append(c.Attr, a)
+					break
+				}
+			}
+			n.Attr = append(n.Attr[:i], n.Attr[i+1:]...)
+			break
+		}
+	}
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		fixFootnoteRoles(c)
 	}
 }
 
