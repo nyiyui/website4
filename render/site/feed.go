@@ -62,8 +62,10 @@ type atomContent struct {
 //
 // baseURL must be an absolute URL ending in "/" (e.g. "https://example.org/"
 // or "https://example.org/ja/"): Atom entries require absolute ids/links,
-// but Entry.URL and Entry.Content are generated root-relative, for serving
-// the site itself.
+// but Entry.URL is generated relative to the locale's own root (so it
+// resolves correctly under that locale's <base href> when served directly),
+// and Entry.Content's root-relative ("/"-prefixed) links point at
+// site-wide-root assets shared across locales.
 func WriteFeed(outDir string, entries []Entry, baseURL, siteName string) error {
 	sorted := append([]Entry(nil), entries...)
 	sort.Slice(sorted, func(i, j int) bool {
@@ -92,7 +94,7 @@ func WriteFeed(outDir string, entries []Entry, baseURL, siteName string) error {
 		if err != nil {
 			return fmt.Errorf("absolutize content for %s: %w", e.URL, err)
 		}
-		url := baseURL + strings.TrimPrefix(e.URL, "/")
+		url := baseURL + e.URL
 		date := e.Date.UTC().Format(time.RFC3339)
 		feed.Entries = append(feed.Entries, atomEntry{
 			ID:        url,

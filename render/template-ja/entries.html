@@ -3,7 +3,7 @@
     <a href="{{.URL}}">{{.Title}}</a>
     {{if not .Date.IsZero}}({{.Date.Format "2006-Jan-02"}}){{end}}
     <br />
-    キーワード: {{range .Keywords}}<a href="/ja/keywords/{{.}}.html">{{.}}</a> {{end}}
+    キーワード: {{range .Keywords}}<a href="keywords/{{.}}.html">{{.}}</a> {{end}}
   </li>
   {{end}}
 </ul>

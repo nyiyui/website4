@@ -109,7 +109,7 @@ func RenderBlog(blogDir, outDir, templateDir string, alt AltLang) ([]Entry, erro
 		if err != nil {
 			return nil, err
 		}
-		entries = append(entries, Entry{Metadata: meta, URL: "/" + filepath.ToSlash(htmlRel), Content: content})
+		entries = append(entries, Entry{Metadata: meta, URL: filepath.ToSlash(htmlRel), Content: content})
 	}
 	return entries, nil
 }

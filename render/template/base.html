@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'none'">
+    <base href="/">
     <title>{{block "title" .}}Ken Shibata{{end}}</title>
     {{block "head" .}}{{end}}
-    <link rel="alternate" type="application/atom+xml" title="Ken Shibata" href="/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="Ken Shibata" href="feed.xml">
     <style>
       :root {
         color-scheme: light dark;
@@ -109,9 +110,9 @@
           <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> Ken Shibata
         </header>
         <nav role="navigation">
-          <a href="/">Home</a>
-          <a href="/all-posts.html">Blog</a>
-          <a href="/projects">Projects</a>
+          <a href="./">Home</a>
+          <a href="all-posts.html">Blog</a>
+          <a href="projects">Projects</a>
           <a href="https://convind4.kiyuri.ca">Wiki</a>
           <a href="{{.AltLangURL}}" hreflang="ja" lang="ja">日本語</a>
         </nav>

@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' https:; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'none'">
+    <base href="/ja/">
     <title>{{block "title" .}}柴田 謙{{end}}</title>
     {{block "head" .}}{{end}}
-    <link rel="alternate" type="application/atom+xml" title="柴田 謙" href="/ja/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="柴田 謙" href="feed.xml">
     <style>
       :root {
         color-scheme: light dark;
@@ -109,9 +110,9 @@
           <img src="/favicon.ico" alt="" width="32" height="32" style="vertical-align: middle"> 柴田 謙
         </header>
         <nav role="navigation">
-          <a href="/ja/">ホーム</a>
-          <a href="/ja/all-posts.html">ブログ</a>
-          <a href="/ja/projects">プロジェクト</a>
+          <a href="./">ホーム</a>
+          <a href="all-posts.html">ブログ</a>
+          <a href="projects">プロジェクト</a>
           <a href="https://convind4.kiyuri.ca">ウィキ</a>
           <a href="{{.AltLangURL}}" hreflang="en" lang="en">English</a>
         </nav>
