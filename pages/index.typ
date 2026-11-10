@@ -49,6 +49,7 @@ My hobbies include model trains and riding railways.
 // TODO
 
 = News <news>
+- I presented at today's [OSPO Maintainers Meeting](https://ospo.cc.gatech.edu/open-source-maintainers/) on software archival and preservation!
 - I voted!
 - I'm #link("https://forum.colemak.com/topic/1858-learn-colemak-in-steps-with-the-tarmak-layouts/")[transitioning] my keyboard layout from QWERTY to Colemak since the summer. Today, I #link("https://github.com/nyiyui/etc-nixos/commit/3ed11797ab8d7815f4759190f9c02f5571d09c4e")[switched] to Phase 3!
 - I've rewrote my website (again)! Pages use #link("https://typst.app")[Typst] now#footnote[Inspired by #link("https://www.julianlbauer.com/about")[Julian]'s website]! I'm in the process of copying pages over from my old website, please excuse this empty site…
